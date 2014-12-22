@@ -36,7 +36,19 @@ namespace gpc {
             std::string log(log_size, 0);
             GLsizei real_size = 0;
             EXEC_GL(glGetShaderInfoLog, shader, log.size(), &real_size, &log[0]);
+            log.resize(real_size);
             return log;
+        }
+
+        inline std::string compileShader(GLuint shader, const std::string source) {
+            const GLchar *sources[1] = { source.c_str() };
+            const GLint   lengths[1] = { source.size() };
+            EXEC_GL(glShaderSource, shader, 1, sources, lengths);
+            EXEC_GL(glCompileShader, shader);
+            GLint compiled;
+            EXEC_GL(glGetShaderiv, shader, GL_COMPILE_STATUS, &compiled);
+            if (!compiled) throw std::runtime_error(std::string("Failed to compile shader:\n") + gpc::gl::getShaderCompilationLog(shader));
+            return getShaderCompilationLog(shader);
         }
 
     } // ns gl
