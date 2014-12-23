@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <vector>
 #include <gpc/gl/wrappers.hpp>
 
 namespace gpc {
@@ -40,31 +41,18 @@ namespace gpc {
             return log;
         }
 
-        inline std::string compileShader(GLuint shader, const std::string source) {
-            const GLchar *sources[1] = { source.c_str() };
-            const GLint   lengths[1] = { source.size() };
-            EXEC_GL(glShaderSource, shader, 1, sources, lengths);
-            EXEC_GL(glCompileShader, shader);
-            GLint compiled;
-            EXEC_GL(glGetShaderiv, shader, GL_COMPILE_STATUS, &compiled);
-            if (!compiled) throw std::runtime_error(std::string("Failed to compile shader:\n") + gpc::gl::getShaderCompilationLog(shader));
-            return getShaderCompilationLog(shader);
-        }
-
-        inline std::string compileShader(GLuint shader, const std::string source, const std::string defines) {
-            /*
-            // Skip the version definition lines
-            size_t n = 0;
-            for (auto it = source.begin(); it != end(source) && n < header_lines; ) {
-                if      (*it == '\r') { n ++; it ++; if (it != end(source) && *it == '\n') it++; }
-                else if (*it == '\n') { n ++; it ++; if (it != end(source) && *it == '\r') it++; }
-                else it ++;
+        inline std::string compileShader(GLuint shader, const std::string source, const std::string defines = "") {
+            // NOTE: this method of adding #define's to a shader violates the GLSL specification that says that
+            //  the first non-blank, non-comment statement must be #version
+            std::vector<const char *> sources;
+            std::vector<GLint> lengths;
+            if (!defines.empty()) { 
+                sources.push_back(defines.c_str()); lengths.push_back(defines.size()); 
+                sources.push_back("\n"); lengths.push_back(1);
             }
-            */
-            std::string defs = defines + "\n";
-            const GLchar *sources[2] = { defs.c_str(), source.c_str() };
-            const GLint   lengths[2] = { defs.size(), source.size() };
-            EXEC_GL(glShaderSource, shader, 2, sources, lengths);
+            sources.push_back(source.c_str());
+            lengths.push_back(source.size());
+            EXEC_GL(glShaderSource, shader, sources.size(), &sources[0], &lengths[0]);
             EXEC_GL(glCompileShader, shader);
             GLint compiled;
             EXEC_GL(glGetShaderiv, shader, GL_COMPILE_STATUS, &compiled);
