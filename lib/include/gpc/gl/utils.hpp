@@ -8,6 +8,14 @@ namespace gpc {
 
     namespace gl {
     
+        typedef GLfloat FloatVec2[2];
+        typedef GLfloat FloatVec3[3];
+        typedef GLfloat FloatVec4[4];
+
+        typedef GLint IntVec2[2];
+        typedef GLint IntVec3[3];
+        typedef GLint IntVec4[4];
+
 #ifdef _DEBUG
         inline void checkUniformLocation(const char *name, GLuint location) 
         {
@@ -21,18 +29,38 @@ namespace gpc {
         inline void checkUniformLocation(GLuint program, const char *name, GLuint index) {}
 #endif
 
-        inline void setUniform(const char *name, GLuint index, GLint value)
+        inline void 
+        setUniform(const char *name, GLuint index, GLint value)
         {
             checkUniformLocation(name, index);
             EXEC_GL(glUniform1i, index, value);
         }
 
-        template <int Count>
+        inline void
+        setUniform(const char *name, GLuint index, GLuint value)
+        {
+            setUniform(name, index, GLint(value));
+        }
+
         inline void 
-        setUniform(const char *name, GLuint index, const GLfloat *values) 
+        setUniform(const char *name, GLuint index, const FloatVec4 &values)
         {
             checkUniformLocation(name, index);
             EXEC_GL(glUniform4fv, index, 1, values);
+        }
+
+        inline void
+        setUniform(const char *name, GLuint index, const IntVec2 &values)
+        {
+            checkUniformLocation(name, index);
+            EXEC_GL(glUniform2iv, index, 1, values);
+        }
+
+        inline void
+        setUniform(const char *name, GLuint index, const IntVec4 &values)
+        {
+            checkUniformLocation(name, index);
+            EXEC_GL(glUniform4iv, index, 1, values);
         }
 
         inline auto
