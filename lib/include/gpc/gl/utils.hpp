@@ -26,7 +26,7 @@ namespace gpc {
             assert(loc == location);
         }
 #else
-        inline void checkUniformLocation(GLuint program, const char *name, GLuint index) {}
+        inline void checkUniformLocation(const char *name, GLuint index) {}
 #endif
 
         inline void 
