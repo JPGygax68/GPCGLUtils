@@ -3,6 +3,7 @@
 #include <cassert>
 #include <vector>
 #include <gpc/gl/wrappers.hpp>
+#include <gpc/gl/triangle_strip.hpp>
 
 namespace gpc {
 
