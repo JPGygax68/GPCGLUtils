@@ -3,7 +3,6 @@
 #include <cassert>
 #include <vector>
 #include <gpc/gl/wrappers.hpp>
-#include <gpc/gl/triangle_strip.hpp>
 
 namespace gpc {
 
@@ -16,6 +15,8 @@ namespace gpc {
         typedef GLint IntVec2[2];
         typedef GLint IntVec3[3];
         typedef GLint IntVec4[4];
+
+        // TODO: single out shader-related functionality into a separate module
 
 #ifdef _DEBUG
         inline void checkUniformLocation(const char *name, GLuint location) 
