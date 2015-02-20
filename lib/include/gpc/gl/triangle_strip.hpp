@@ -12,6 +12,7 @@ namespace gpc {
         
         // TODO: rename, since it can now contain multiple strips ?
 
+        template <class VertexData>
         class TriangleStrip {
             
         public:
@@ -32,12 +33,7 @@ namespace gpc {
                 EXEC_GL(glDeleteBuffers, 1, &index_buffer);
             }
             
-            void uploadData(size_t vertex_count, const GLfloat *vertices) {
-
-                uploadData(vertex_count, reinterpret_cast<const FloatVec3*>(vertices));
-            }
-
-            void uploadData(size_t vertex_count, const FloatVec3 *vertices) {
+            void uploadData(size_t vertex_count, const VertexData *vertices) {
 
                 std::unique_ptr<index_t> indices( new index_t [vertex_count] );
                 for (GLushort i = 0; i < vertex_count; i ++) indices.get()[i] = i;
@@ -45,15 +41,10 @@ namespace gpc {
                 uploadData(vertex_count, vertices, vertex_count, indices.get());
             }
 
-            void uploadData(size_t vertex_count, const GLfloat *vertices, size_t index_count, const index_t *indices) {
-
-                uploadData(vertex_count, reinterpret_cast<const FloatVec3*>(vertices), index_count, indices);
-            }
-
-            void uploadData(size_t vertex_count, const FloatVec3 *vertices, size_t index_count, const index_t *indices) {
+            void uploadData(size_t vertex_count, const VertexData *vertices, size_t index_count, const index_t *indices) {
 
                 EXEC_GL(glBindBuffer, GL_ARRAY_BUFFER, vertex_buffer);
-                EXEC_GL(glBufferData, GL_ARRAY_BUFFER, vertex_count * sizeof(FloatVec3), vertices, GL_STATIC_DRAW);
+                EXEC_GL(glBufferData, GL_ARRAY_BUFFER, vertex_count * sizeof(VertexData), vertices, GL_STATIC_DRAW);
                 EXEC_GL(glBindBuffer, GL_ARRAY_BUFFER, 0);
 
                 EXEC_GL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, index_buffer);
@@ -70,7 +61,7 @@ namespace gpc {
 
                 EXEC_GL(glEnableClientState, (GL_VERTEX_ARRAY));
                 EXEC_GL(glBindBuffer, GL_ARRAY_BUFFER, vertex_buffer);
-                EXEC_GL(glVertexPointer, 3, GL_FLOAT, sizeof(FloatVec3), (void*)0);
+                EXEC_GL(glVertexPointer, 3, GL_FLOAT, sizeof(VertexData), (void*)0);
                 EXEC_GL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, index_buffer);
 
                 EXEC_GL(glDrawElements, GL_TRIANGLE_STRIP, index_count, GL_UNSIGNED_SHORT, (void*)(index_base*sizeof(GLushort)));
@@ -85,6 +76,13 @@ namespace gpc {
             GLuint index_buffer;
         };
         
+
+        // Triangle strip with only x, y GLfloat coordinates
+        typedef TriangleStrip<FloatVec2> TriangleStrip2D;
+
+        // Triangle strip with x, y, z GLfloat coordinates
+        typedef TriangleStrip<FloatVec3> TriangleStrip3D;
+
     } // ns gl
     
 } // ns gpc

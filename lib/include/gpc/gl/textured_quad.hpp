@@ -4,6 +4,8 @@ namespace gpc {
 
     namespace gl {
 
+        class TexturedQuad {
+        };
 
     } // ns gl
 

@@ -1,0 +1,26 @@
+2015-02-18 (night)
+------------------
+
+There is a recurring need for 2D rendering  of pictures (including video frames). With the deprecation in OpenGL of the fixed pipeline, there are now entirely too many ways to do this, so I need to give this careful thought if I want to avoid having to do it all over again in 3 months or so.
+
+The biggest question to think about goes way beyond this particular task: should OpenGL programmers use a single, all-purpose shader program - in effect replacing or even mimicking the fixed pipeline -, or is it more natural now to use a separate shader program for each rendering pass?
+
+This is actually a no-brainer, as having a separate shader per shader pass seems natural enough. Now, there could potentially be all kinds of shader passes, but I see two broad categories: 3D and 2D. While 3D may be more complex, the expectations there are relatively easy to define - model/view transformation and camera projection. 2D on the other hand may need to be sub-divided into "free painting" (with arbitrary scales) and pixel-aligned "blitting".
+
+Freely scaling 2D however can easily be treated as a special case of 3D; so this leaves "pixel-aligned" as the one use-case that needs special attention.
+
+A pixel-aligning shader program will typically expect coordinates as (unsigned?) x,y integer vectors. It is the kind of rendering that makes sense for user interfaces, especially for pixel-perfect widget chrome and (sub?)pixel-perfect fonts.
+
+AFAIK, there are no standards regarding such shaders, which means that if I'm not very careful, the code I could write for image rendering would likely only work with my own shaders.
+
+What I'm actually thinking about is avoiding the need to pass texture coordinates. Now that I'm thinking about it though, this makes less and less sense. Though I have actually done it in the past, I remember it took a lot of work.
+
+So, it's perhaps best to switch back to using texture coordinates. This takes shader global parameters (uniforms) out of the equation, leaving only the vertex attributes.
+
+However, vertex attributes aren't standardized any more either. What this means is that there is need to have flexibility regarding the way vertex attributes are sent to the GPU. Assuming the coordinates are kept 3D (with Z = 0 for 2D), that leaves open whether or not there are texture coordinates (they're not always needed) and/or normals. Not to mention that advanced rendering techniques may need additional per-vertex data.
+
+Concretely, this means that my current TriangleStrip helper class is seriously underpowered, as it only supports vertex coordinates. It needs to do more, however the task is potentially complex because vertex data can be interleaved OR split into multiple buffers. Interleaving however should be possible without too much trouble, by templatizing the corresponding methods of the TriangleStrip class.
+
+[Interesting link: https://www.opengl.org/wiki/Vertex_Specification_Best_Practices]
+
+
