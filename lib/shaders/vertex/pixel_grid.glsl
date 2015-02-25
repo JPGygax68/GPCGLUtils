@@ -13,14 +13,24 @@
 layout(location = 0) uniform ivec2 vp_size;
 layout(location = 1) uniform mat3  model_view; // TODO: the name "model/view" may be misleading - there is no "camera"
 
-in ivec2 coordinates;
-in ivec2 texture_coords;
+layout(location = 0) in vec4 coordinates;
+layout(location = 8) in vec4 texture_coords;
+
+out vec2 frag_coord;
+
+out vec2 _coords;
+out float _flag;
 
 void main()
 {
-    vec3 coords = vec3(coordinates, 1);
+    //vec3 coords = vec3(coordinates, 1);
+    vec3 coords = model_view * vec3(coordinates.xy, 1);
 
-    coords = model_view * coords;
-    
     gl_Position = vec4(2 * coords.x / vp_size.x - 1, 2 * coords.y / vp_size.y - 1, 0, 1);
+
+    //frag_coord = coordinates.xy; //vec2(texture_coords);
+    frag_coord = texture_coords.xy;
+
+    _coords = coordinates.xy;
+    _flag = gl_Position.x;
 }

@@ -10,12 +10,21 @@ namespace gpc {
     
     namespace gl {
         
+        struct VertexAttribute {
+            GLenum type;
+            GLint  count;
+            GLint index;
+            // TODO: "normalized" field ?
+        };
+
         // TODO: rename, since it can now contain multiple strips ?
 
-        template <class VertexData>
+        template <class VertexData, const VertexAttribute *AttribList = nullptr, unsigned int AttribCount = 0>
         class TriangleStrip {
             
         public:
+
+            typedef typename VertexData vertex_t;
 
             typedef GLushort index_t;
 
@@ -33,7 +42,7 @@ namespace gpc {
                 EXEC_GL(glDeleteBuffers, 1, &index_buffer);
             }
             
-            void uploadData(size_t vertex_count, const VertexData *vertices) {
+            void uploadData(size_t vertex_count, const vertex_t *vertices) {
 
                 std::unique_ptr<index_t> indices( new index_t [vertex_count] );
                 for (GLushort i = 0; i < vertex_count; i ++) indices.get()[i] = i;
@@ -41,10 +50,10 @@ namespace gpc {
                 uploadData(vertex_count, vertices, vertex_count, indices.get());
             }
 
-            void uploadData(size_t vertex_count, const VertexData *vertices, size_t index_count, const index_t *indices) {
+            void uploadData(size_t vertex_count, const vertex_t *vertices, size_t index_count, const index_t *indices) {
 
                 EXEC_GL(glBindBuffer, GL_ARRAY_BUFFER, vertex_buffer);
-                EXEC_GL(glBufferData, GL_ARRAY_BUFFER, vertex_count * sizeof(VertexData), vertices, GL_STATIC_DRAW);
+                EXEC_GL(glBufferData, GL_ARRAY_BUFFER, vertex_count * sizeof(vertex_t), vertices, GL_STATIC_DRAW);
                 EXEC_GL(glBindBuffer, GL_ARRAY_BUFFER, 0);
 
                 EXEC_GL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, index_buffer);
@@ -59,19 +68,42 @@ namespace gpc {
             
             void draw(size_t index_base, size_t index_count) {
 
-                EXEC_GL(glEnableClientState, (GL_VERTEX_ARRAY));
                 EXEC_GL(glBindBuffer, GL_ARRAY_BUFFER, vertex_buffer);
-                EXEC_GL(glVertexPointer, 3, GL_FLOAT, sizeof(VertexData), (void*)0);
+                //EXEC_GL(glEnableClientState, (GL_VERTEX_ARRAY));
+                //EXEC_GL(glVertexPointer, 2, GL_INT, sizeof(vertex_t), (void*)0); // TODO: HACK! REMOVE! REMOVE!
+
+                size_t offset = 0;
+                const VertexAttribute *attr = AttribList;
+                for (GLuint i = 0; i < AttribCount; i ++, attr++) {
+                    EXEC_GL(glEnableVertexAttribArray, attr->index);
+                    EXEC_GL(glVertexAttribPointer, attr->index, attr->count, attr->type, GL_FALSE, sizeof(vertex_t), (const GLvoid *)offset);
+                    offset += attr->count * attributeSize(attr->type);
+                }
+
                 EXEC_GL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, index_buffer);
 
                 EXEC_GL(glDrawElements, GL_TRIANGLE_STRIP, index_count, GL_UNSIGNED_SHORT, (void*)(index_base*sizeof(GLushort)));
 
                 EXEC_GL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
                 EXEC_GL(glBindBuffer, GL_ARRAY_BUFFER, 0);
-                EXEC_GL(glDisableClientState, (GL_VERTEX_ARRAY));
+                //EXEC_GL(glDisableClientState, (GL_VERTEX_ARRAY));
             }
 
         private:
+
+            // TODO: make this constexpr
+
+            static size_t attributeSize(GLenum type) {
+                switch(type) {
+                case GL_INT: return sizeof(GLint);
+                case GL_UNSIGNED_INT: return sizeof(GLuint);
+                case GL_FLOAT: return sizeof(GLfloat);
+                case GL_DOUBLE: return sizeof(GLdouble);
+                // TODO: support all types supported by glVertexAttribPointer()
+                default: assert(false);
+                }
+            }
+
             GLuint vertex_buffer;
             GLuint index_buffer;
         };

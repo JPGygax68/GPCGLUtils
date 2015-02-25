@@ -13,10 +13,10 @@ namespace gpc {
             namespace fragment {
 
                 inline const std::string
-                rgba() {
+                picture() {
 
                     static const char code[] = {
-                        #include "shaders/fragment/rgba.glsl.h"
+                        #include "shaders/fragment/picture.glsl.h"
                     };
                     static std::string s(code, sizeof(code));
 
