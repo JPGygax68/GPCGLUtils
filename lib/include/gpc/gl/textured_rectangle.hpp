@@ -41,10 +41,10 @@ namespace gpc {
             void uploadVertices(GLint width, GLint height) {
                 
                 TexturedRectangleVertexData vertices[4] = {
-                    { {     0,      0, 0, 1}, {     0,      0, 0, 1} },
-                    { { width,      0, 0, 1}, { width,      0, 0, 1} },
-                    { {     0, height, 0, 1}, {     0, height, 0, 1} },
-                    { { width, height, 0, 1}, { width, height, 0, 1} }
+                    { { (GLfloat)     0, (GLfloat)      0, 0, 1}, { (GLfloat)     0, (GLfloat)      0, 0, 1} },
+                    { { (GLfloat) width, (GLfloat)      0, 0, 1}, { (GLfloat) width, (GLfloat)      0, 0, 1} },
+                    { { (GLfloat)     0, (GLfloat) height, 0, 1}, { (GLfloat)     0, (GLfloat) height, 0, 1} },
+                    { { (GLfloat) width, (GLfloat) height, 0, 1}, { (GLfloat) width, (GLfloat) height, 0, 1} }
                 };
 
                 TriangleStrip::uploadData(4, vertices);
@@ -62,6 +62,13 @@ namespace gpc {
             void draw() {
 
                 bindTexture();
+
+                TriangleStrip::draw(4);
+            }
+
+            void drawBlank() {
+
+                EXEC_GL(glBindTexture, GL_TEXTURE_RECTANGLE, 0);
 
                 TriangleStrip::draw(4);
             }

@@ -49,6 +49,11 @@ namespace gpc {
             gpc::gl::compileShader(vertex_shader, vertex_code);
             gpc::gl::compileShader(fragment_shader, fragment_code);
 
+            return buildShaderProgram(vertex_shader, fragment_shader);
+        }
+
+        inline GLuint buildShaderProgram(GLuint vertex_shader, GLuint fragment_shader) {
+
             GLuint program = CALL_GL(glCreateProgram);
 
             EXEC_GL(glAttachShader, program, vertex_shader);

@@ -19,7 +19,7 @@ namespace gpc {
 
         // TODO: rename, since it can now contain multiple strips ?
 
-        template <class VertexData, const VertexAttribute *AttribList = nullptr, unsigned int AttribCount = 0>
+        template <class VertexData = FloatVec3, const VertexAttribute *AttribList = nullptr, unsigned int AttribCount = 0>
         class TriangleStrip {
             
         public:
@@ -69,17 +69,20 @@ namespace gpc {
             void draw(size_t index_base, size_t index_count) {
 
                 EXEC_GL(glBindBuffer, GL_ARRAY_BUFFER, vertex_buffer);
-                //EXEC_GL(glEnableClientState, (GL_VERTEX_ARRAY));
-                //EXEC_GL(glVertexPointer, 2, GL_INT, sizeof(vertex_t), (void*)0); // TODO: HACK! REMOVE! REMOVE!
 
-                size_t offset = 0;
-                const VertexAttribute *attr = AttribList;
-                for (GLuint i = 0; i < AttribCount; i ++, attr++) {
-                    EXEC_GL(glEnableVertexAttribArray, attr->index);
-                    EXEC_GL(glVertexAttribPointer, attr->index, attr->count, attr->type, GL_FALSE, sizeof(vertex_t), (const GLvoid *)offset);
-                    offset += attr->count * attributeSize(attr->type);
+                if (AttribList) {
+                    size_t offset = 0;
+                    const VertexAttribute *attr = AttribList;
+                    for (GLuint i = 0; i < AttribCount; i++, attr++) {
+                        EXEC_GL(glEnableVertexAttribArray, attr->index);
+                        EXEC_GL(glVertexAttribPointer, attr->index, attr->count, attr->type, GL_FALSE, sizeof(vertex_t), (const GLvoid *)offset);
+                        offset += attr->count * attributeSize(attr->type);
+                    }
                 }
-
+                else {
+                    EXEC_GL(glEnableClientState, (GL_VERTEX_ARRAY));
+                    EXEC_GL(glVertexPointer, 3, GL_FLOAT, sizeof(vertex_t), (void*)0); // TODO: HACK! REMOVE! REMOVE!
+                }
                 EXEC_GL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, index_buffer);
 
                 EXEC_GL(glDrawElements, GL_TRIANGLE_STRIP, index_count, GL_UNSIGNED_SHORT, (void*)(index_base*sizeof(GLushort)));
@@ -100,7 +103,7 @@ namespace gpc {
                 case GL_FLOAT: return sizeof(GLfloat);
                 case GL_DOUBLE: return sizeof(GLdouble);
                 // TODO: support all types supported by glVertexAttribPointer()
-                default: assert(false);
+                default: assert(false); return 0;
                 }
             }
 
