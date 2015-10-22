@@ -4,6 +4,26 @@
 
 #include <gpc/gl/wrappers.hpp>
 
+// DECLARATIONS --------------------------------------------
+
+namespace gpc {
+
+    namespace gl {
+
+        auto getShaderCompilationLog(GLuint shader) -> std::string;
+            
+        auto compileShader(GLuint shader, const std::string &source, const std::string &defines = "") -> std::string;
+
+        GLuint buildShaderProgram(const std::string &vertex_code, const std::string &fragment_code);
+
+        GLuint buildShaderProgram(GLuint vertex_shader, GLuint fragment_shader);
+
+    } // ns gl
+
+} // ns gpc
+
+// IMPLEMENTATION -----------------------------------------
+
 namespace gpc {
 
     namespace gl {
@@ -21,7 +41,7 @@ namespace gpc {
         }
 
         inline auto
-        compileShader(GLuint shader, const std::string &source, const std::string &defines = "") -> std::string
+        compileShader(GLuint shader, const std::string &source, const std::string &defines) -> std::string
         {
             // NOTE: this method of adding #define's to a shader violates the GLSL specification that says that
             //  the first non-blank, non-comment statement must be #version
