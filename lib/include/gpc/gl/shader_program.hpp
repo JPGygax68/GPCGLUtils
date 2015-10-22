@@ -18,6 +18,8 @@ namespace gpc {
 
         GLuint buildShaderProgram(GLuint vertex_shader, GLuint fragment_shader);
 
+        auto getProgramInfoLog(GLuint progr) -> std::string;
+
     } // ns gl
 
 } // ns gpc
@@ -82,6 +84,16 @@ namespace gpc {
             EXEC_GL(glLinkProgram, program);
 
             return program;
+        }
+
+        inline auto getProgramInfoLog(GLuint prog) -> std::string
+        {
+            char buffer[30*120]; 
+
+            GLsizei size;
+            EXEC_GL(glGetProgramInfoLog, prog, sizeof(buffer), &size, buffer);
+
+            return std::string(buffer, size);
         }
 
     } // ns gl
