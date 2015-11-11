@@ -75,13 +75,14 @@ namespace gpc {
                     const VertexAttribute *attr = AttribList;
                     for (GLuint i = 0; i < AttribCount; i++, attr++) {
                         EXEC_GL(glEnableVertexAttribArray, attr->index);
-                        EXEC_GL(glVertexAttribPointer, attr->index, attr->count, attr->type, GL_FALSE, sizeof(vertex_t), (const GLvoid *)offset);
+                        EXEC_GL(glVertexAttribPointer, attr->index, attr->count, attr->type, GL_FALSE, sizeof(VertexData), (const GLvoid *)offset);
                         offset += attr->count * attributeSize(attr->type);
                     }
                 }
                 else {
                     EXEC_GL(glEnableClientState, (GL_VERTEX_ARRAY));
                     EXEC_GL(glVertexPointer, 3, GL_FLOAT, sizeof(vertex_t), (void*)0); // TODO: HACK! REMOVE! REMOVE!
+                    // TODO: use glTexCoordPointer() as well when necessary
                 }
                 EXEC_GL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, index_buffer);
 
@@ -89,7 +90,16 @@ namespace gpc {
 
                 EXEC_GL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
                 EXEC_GL(glBindBuffer, GL_ARRAY_BUFFER, 0);
-                //EXEC_GL(glDisableClientState, (GL_VERTEX_ARRAY));
+                if (AttribList) {
+                    const VertexAttribute *attr = AttribList;
+                    for (GLuint i = 0; i < AttribCount; i++, attr++) {
+                        EXEC_GL(glDisableVertexAttribArray, attr->index);
+                    }
+                }
+                else
+                {
+                    EXEC_GL(glDisableClientState, (GL_VERTEX_ARRAY));
+                }
             }
 
         private:

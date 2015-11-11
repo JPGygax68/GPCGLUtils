@@ -64,6 +64,8 @@ namespace gpc {
                 bindTexture();
 
                 TriangleStrip::draw(4);
+
+                unbindAll();
             }
 
             void drawBlank() {
