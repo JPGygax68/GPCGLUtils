@@ -38,13 +38,13 @@ namespace gpc {
             /** Uploads 2D vertices with both pixel and texel coordinates.
                 TODO: optional parameters to separately define the texture corners.
              */
-            void uploadVertices(GLint width, GLint height) {
+            void uploadVertices(GLint width, GLint height, GLint x = 0, GLint y = 0) {
                 
                 TexturedRectangleVertexData vertices[4] = {
-                    { { (GLfloat)     0, (GLfloat)      0, 0, 1}, { (GLfloat)     0, (GLfloat)      0, 0, 1} },
-                    { { (GLfloat) width, (GLfloat)      0, 0, 1}, { (GLfloat) width, (GLfloat)      0, 0, 1} },
-                    { { (GLfloat)     0, (GLfloat) height, 0, 1}, { (GLfloat)     0, (GLfloat) height, 0, 1} },
-                    { { (GLfloat) width, (GLfloat) height, 0, 1}, { (GLfloat) width, (GLfloat) height, 0, 1} }
+                    { { (GLfloat) x        , (GLfloat) y         , 0, 1}, { (GLfloat) x        , (GLfloat) y         , 0, 1} },
+                    { { (GLfloat) x + width, (GLfloat) y         , 0, 1}, { (GLfloat) x + width, (GLfloat) y         , 0, 1} },
+                    { { (GLfloat) x        , (GLfloat) y + height, 0, 1}, { (GLfloat) x        , (GLfloat) y + height, 0, 1} },
+                    { { (GLfloat) x + width, (GLfloat) y + height, 0, 1}, { (GLfloat) x + width, (GLfloat) y + height, 0, 1} }
                 };
 
                 TriangleStrip::uploadData(4, vertices);
