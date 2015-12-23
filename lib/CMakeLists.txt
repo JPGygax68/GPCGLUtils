@@ -17,6 +17,7 @@ set(SHADER_FILES
 
 # Force static runtime libraries
 
+if (0) # TODO: provide an option (or remove altogether)
 foreach(flag
   CMAKE_C_FLAGS_RELEASE CMAKE_C_FLAGS_RELWITHDEBINFO
   CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_DEBUG_INIT
@@ -25,6 +26,7 @@ foreach(flag
   STRING(REPLACE "/MD"  "/MT" "${flag}" "${${flag}}")
   SET("${flag}" "${${flag}} /EHsc")
 endforeach()
+endif()
 
 add_library(libGPCGLUtils STATIC ${SOURCE_FILES} ${HEADER_FILES} ${SHADER_FILES})
 
@@ -34,14 +36,6 @@ target_include_directories(libGPCGLUtils BEFORE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated>
     #$<INSTALL_INTERFACE:include> # TODO
 )
-
-if (0)
-# Unfortunately, we need a dummy target so that we can generate files
-file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/dummy_main.cpp" "int main(int argc, char *argv[]) { return 0; }")
-# Adding the header files to the dummy executable target helps when working with Visual Studio
-add_executable(dummy "${CMAKE_CURRENT_BINARY_DIR}/dummy_main.cpp" ${HEADER_FILES} ${SHADER_FILES})
-target_link_libraries(dummy PUBLIC libGPCGLUtils)
-endif()
 
 # "Embed" all shader files (convert to header files)
 
@@ -58,17 +52,16 @@ foreach(shader_file ${SHADER_FILES})
   #list(APPEND shader_headers "${CMAKE_CURRENT_BINARY_DIR}/generated/${shader_file}.h")
 endforeach()
 
-export(TARGETS libGPCGLUtils FILE libGPCGLUtils-targets.cmake)
-configure_file(libGPCGLUtils-config.cmake.in libGPCGLUtils-config.cmake @ONLY)
-export(PACKAGE libGPCGLUtils)
-
 find_package(libGPCGLWrappers REQUIRED)
-target_link_libraries(libGPCGLUtils PRIVATE libGPCGLWrappers)
+target_link_libraries(libGPCGLUtils PUBLIC libGPCGLWrappers)
 
 # The GLbinding dependency is private - we only need the GL types
 find_package(glbinding REQUIRED)
-target_link_libraries(libGPCGLUtils PRIVATE ${GLBINDING_DIRECTORIES})
-#target_link_libraries(libGPCGLUtils PRIVATE ${GLBINDING_LIBRARIES})
+target_link_libraries(libGPCGLUtils PUBLIC ${GLBINDING_DIRECTORIES})
 target_compile_definitions(libGPCGLUtils PRIVATE GLBINDING_STATIC)
+
+export(TARGETS libGPCGLUtils FILE libGPCGLUtils-targets.cmake)
+configure_file(libGPCGLUtils-config.cmake.in libGPCGLUtils-config.cmake @ONLY)
+export(PACKAGE libGPCGLUtils)
 
 # TODO: install

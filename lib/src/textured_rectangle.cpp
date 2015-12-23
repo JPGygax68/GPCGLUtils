@@ -20,9 +20,18 @@ namespace gpc {
          */
         const VertexAttribute _nvFPTexRectAttribs[2] = {
             { GL_FLOAT, 4, 0},
-            { GL_FLOAT, 4, 8}
+            { GL_FLOAT, 4, 8}   // see above
         };
         
+        /** The "default" vertex attributes are: 4 floats for the vertex coordinates (x,y,z,w) plus
+            2 floats (u,v) for the texture coordinates.
+            NOT TO BE CONFUSED with the "fixed pipeline" vertex attribute layout that is being
+            mimicked by the _nvFPTexRectAttributes[] array.
+         */
+        const VertexAttribute _nvDefaultTexRectAttribs[2] = {
+            { GL_FLOAT, 4, 0},
+            { GL_FLOAT, 2, 1}
+        };
     } // ns gl
     
 } // ns gpc

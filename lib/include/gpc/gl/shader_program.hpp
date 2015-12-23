@@ -3,6 +3,9 @@
 #include <string>
 #include <vector>
 
+#include <glbinding/gl/gl.h>
+using namespace gl;
+
 #include <gpc/gl/wrappers.hpp>
 
 // DECLARATIONS --------------------------------------------
