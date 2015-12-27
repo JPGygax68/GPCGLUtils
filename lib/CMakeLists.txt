@@ -1,6 +1,7 @@
 # This library is (almost) header-only, so headers come first:
 set(HEADER_FILES 
   "include/gpc/gl/utils.hpp" 
+  "include/gpc/gl/vectors.hpp"
   "include/gpc/gl/triangle_strip.hpp"
   "include/gpc/gl/textured_rectangle.hpp"
   "include/gpc/gl/shader_program.hpp"

@@ -6,6 +6,8 @@
 #include <glbinding/gl/gl.h>
 #include <glbinding/Binding.h>
 
+#include <gpc/gl/textured_rectangle.hpp>
+
 #include "test_window.hpp"
 
 int main(int argc, char *argv[])
@@ -21,6 +23,9 @@ int main(int argc, char *argv[])
         gl::glClearColor(0, 0.6f, 1, 1);
         gl::glClear(gl::GL_COLOR_BUFFER_BIT|gl::GL_DEPTH_BUFFER_BIT);
         SDL_GL_SwapWindow(main_window.window.get());
+
+        gpc::gl::TexturedRectangle<> rect;
+        rect.uploadVertices(200, 150);
 
         SDL_Delay(3000);
     }

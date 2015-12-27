@@ -6,6 +6,8 @@ add_executable(${PROJECT_NAME}
   main.cpp
 )
 
+target_link_libraries(${PROJECT_NAME} PRIVATE libGPCGLUtils)
+
 find_package(SDL2 REQUIRED)
 target_include_directories(${PROJECT_NAME} PRIVATE ${SDL2_INCLUDE_DIR})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARY})
@@ -19,4 +21,5 @@ target_include_directories(${PROJECT_NAME} PRIVATE ${GLBINDING_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${GLBINDING_LIBRARIES})
 target_compile_definitions(${PROJECT_NAME} PRIVATE GLBINDING_STATIC)
 
-add_test(NAME tests COMMAND test_app)
+# TODO: re-enable
+#add_test(NAME interactive_tests COMMAND ${PROJECT_NAME})

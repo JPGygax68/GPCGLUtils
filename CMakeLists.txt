@@ -3,4 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 project(libGPCGLUtils)
 
 add_subdirectory(lib)
-add_subdirectory(tests)
+
+enable_testing()
+add_subdirectory(test_suite)
+add_subdirectory(test_app)

@@ -20,19 +20,42 @@ namespace gpc {
             FloatVec4 texture_coords;
         };
 
+        template <GLenum TextureType, int CoordVectorSize = 2>
+        struct texture_traits {};
+
+        template <int CoordVectorSize>
+        struct texture_traits<GL_TEXTURE_2D, CoordVectorSize> {
+
+            static constexpr GLfloat convert_width (GLint width)  { return 1; }
+            static constexpr GLfloat convert_height(GLint height) { return 1; }
+
+            /* static constexpr auto rectangle_coordinates(GLint width, GLint height)
+            {
+                std::array
+            } */
+        };
+
+        template <>
+        struct texture_traits<GL_TEXTURE_RECTANGLE> {
+            static constexpr GLint convert_width (GLint width ) { return width ; }
+            static constexpr GLint convert_height(GLint height) { return height; }
+        };
+
         // TODO: provide specializations of this template to work with GLint as well as GLfloat
 
-        extern const VertexAttribute _nvDefaultTexRectAttribs[2];
+        extern const VertexAttribute _DefaultTexRectAttribs[2];
         extern const VertexAttribute _nvFPTexRectAttribs[2];
 
         template <
             GLenum TextureType = GL_TEXTURE_RECTANGLE, 
             bool AllocTexture = true,
             typename VertexStruct = DefaultTexturedRectangleVertexData,
-            const VertexAttribute *AttribList = _nvDefaultTexRectAttribs
+            const VertexAttribute *AttribList = _DefaultTexRectAttribs
         >
         class TexturedRectangle : public TriangleStrip<VertexStruct, AttribList, 2> {
         public:
+
+            using texture_traits = typename texture_traits<TextureType>;
 
             TexturedRectangle() {}
 
@@ -58,10 +81,10 @@ namespace gpc {
 
                 // TODO: implement via specialization
                 VertexStruct vertices[4] = {
-                    { { (GLfloat) x        , (GLfloat) y         , 0, 1}, { tex_coords[0][0], tex_coords[0][1]} },
-                    { { (GLfloat) x + width, (GLfloat) y         , 0, 1}, { tex_coords[1][0], tex_coords[1][1]} },
-                    { { (GLfloat) x        , (GLfloat) y + height, 0, 1}, { tex_coords[2][0], tex_coords[2][1]} },
-                    { { (GLfloat) x + width, (GLfloat) y + height, 0, 1}, { tex_coords[3][0], tex_coords[3][1]} }
+                    { { (GLfloat) x        , (GLfloat) y         , 0, 1}, { 0, 0 } },
+                    { { (GLfloat) x + width, (GLfloat) y         , 0, 1}, { 1, 0 } },
+                    { { (GLfloat) x        , (GLfloat) y + height, 0, 1}, { 0, 1 } },
+                    { { (GLfloat) x + width, (GLfloat) y + height, 0, 1}, { 1, 1 } }
                 };
 
                 TriangleStrip::uploadData(4, vertices);
@@ -128,14 +151,14 @@ namespace gpc {
             struct TexCoordGen<GL_TEXTURE_RECTANGLE> {
                 static void get_coords(GLint width, GLint height, TexCoordSet &coords)
                 {
-                    TexCoordSet values = { 
+                    std::array<TexCoordSet, 4> values { 
                         { (GLfloat)     0, (GLfloat)      0},
                         { (GLfloat) width, (GLfloat)      0},
                         { (GLfloat)     0, (GLfloat) height},
                         { (GLfloat) width, (GLfloat) height}
                     };
 
-                    for (int i = 0; i < 4; i ++) copy(begin(values[i]), end(values[i]), begin(coords[i]));
+                    for (int i = 0; i < 4; i ++) std::copy(std::begin(values[i]), std::end(values[i]), std::begin(coords[i]));
                 }
             };
 
