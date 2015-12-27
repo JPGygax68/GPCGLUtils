@@ -6,10 +6,11 @@ namespace gpc {
 
     namespace gl {
 
-        // TODO: template parameter for element type
         template <typename ElemT = GLfloat, int VectorSize = 2>
         struct _vector2_base {
+            constexpr _vector2_base() : _elems{} {}
             constexpr _vector2_base(ElemT x_, ElemT y_) : _elems{ x_, y_ } {}
+            constexpr _vector2_base(const ElemT (&arr)[VectorSize]) { std::copy(std::begin(arr), std::end(arr), std::begin(_elems)); }
             constexpr _vector2_base(std::array<ElemT, VectorSize> &&vals) : _elems{ std::move(vals) } {}
             auto& x() { return _elems[0]; }
             auto& y() { return _elems[1]; }
@@ -18,15 +19,18 @@ namespace gpc {
 
         template <typename ElemT = GLfloat, int VectorSize = 3>
         struct _vector3_base : public _vector2_base<ElemT, VectorSize> {
-            //_vector3_base(GLfloat x_, GLfloat y_, GLfloat z_) : _vector2_base{ x_, y_ }, _elems[2]{ z_ } {}
+            constexpr _vector3_base() : _vector2_base<ElemT, VectorSize>() {}
+            constexpr _vector3_base(ElemT x_, ElemT y_, ElemT z_) : _vector2_base{ { x_, y_, z_ } } {}
             using _vector2_base<ElemT, VectorSize>::_vector2_base;
             auto& z() { return _elems[2]; }
         };
 
-        template <typename ElemT = GLfloat, int VectorSize = 4>
-        struct _vector4_base : public _vector3_base<ElemT, VectorSize> {
-            //_vector4_base(GLfloat x_, GLfloat y_, GLfloat z_, GLfloat w_ = 1) : _vector3_base{ x_, y_, z_ }, _elems[3]{ w_ } {}
-            using _vector3_base<ElemT, VectorSize>::_vector3_base;
+        template <typename ElemT = GLfloat>
+        struct _vector4_base : public _vector3_base<ElemT, 4> {
+            constexpr _vector4_base() : _vector3_base<ElemT, 4>({0, 0, 0, 1}) {}
+            constexpr _vector4_base(ElemT x_, ElemT y_, ElemT z_, ElemT w_ = 1) : _vector3_base{ { x_, y_, z_, w_ } } {}
+            constexpr _vector4_base(const ElemT (&arr)[4]) : _vector3_base<ElemT, 4>(arr) {}
+            constexpr _vector4_base(std::array<ElemT, 4> &&vals) : _vector3_base<ElemT, 4>(std::move(vals)) {}
             auto& w() { return _elems[3]; }
         };
 
