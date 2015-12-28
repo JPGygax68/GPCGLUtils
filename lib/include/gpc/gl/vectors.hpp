@@ -43,9 +43,11 @@ namespace gpc {
         class _vector4_base : public _vector3_base<ElemT, 4> {
         public:
             constexpr _vector4_base() : _vector3_base<ElemT, 4>({0, 0, 0, 1}) {}
-            constexpr _vector4_base(ElemT x_, ElemT y_, ElemT z_, ElemT w_ = 1) : _vector3_base{ { x_, y_, z_, w_ } } {}
+            constexpr _vector4_base(ElemT x_, ElemT y_, ElemT z_ = 0) : _vector3_base{ { x_, y_, z_ } } { _elems[3] = 1; }
+            constexpr _vector4_base(ElemT x_, ElemT y_, ElemT z_, ElemT w_) : _vector3_base{ { x_, y_, z_, w_ } } {}
             constexpr _vector4_base(const ElemT (&arr)[4]) : _vector3_base<ElemT, 4>(arr) {}
             constexpr _vector4_base(const ElemT (&arr)[3]) : _vector3_base<ElemT, 4>(arr[0], arr[1], arr[2]) { _elems[3] = 1; }
+            constexpr _vector4_base(const ElemT (&arr)[2]) : _vector3_base<ElemT, 4>(arr[0], arr[1]) { _elems[2] = 0, _elems[3] = 1; }
             constexpr _vector4_base(std::array<ElemT, 4> &&vals) : _vector3_base<ElemT, 4>(std::move(vals)) {}
             auto& w() { return _elems[3]; }
         };
