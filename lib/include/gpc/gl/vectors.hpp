@@ -21,14 +21,10 @@ namespace gpc {
             constexpr _vector2_base(const _vector2_base<ElemT> &from) {
                 std::copy(std::begin(from._elems), std::end(from._elems), std::begin(_elems));
             }
-#ifdef NOT_DEFINED
-            template <int Size_>
-            constexpr _vector2_base(const _vector2_base<ElemT, Size_> &from) {
-                std::copy(std::begin(from._elems), std::begin(from._elems) + std::min(Size, Size_) /*std::end(arr)*/, std::begin(_elems));
-            }
-#endif
+
             auto& x() { return _elems[0]; }
             auto& y() { return _elems[1]; }
+
             operator const ElemT *() const { return &_elems[0]; }
 
         protected:

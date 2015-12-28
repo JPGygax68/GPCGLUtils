@@ -48,6 +48,23 @@ void test_vector_class_size_2_or_higher()
         const Vector::element_type *p = v; // TODO: is this implicit conversion or explicit construction ?
         CHECK(p[0] == 101 && p[1] == 102);
     });
+    test("can be accessed via [] operator", []() {
+        Vector v{ 15, 16 };
+        CHECK(v[0] == 15 && v[1] == 16);
+    });
+#ifdef _DEBUG
+    test("(DEBUG) throws if [] is negative", []() {
+        Vector v;
+        bool has_thrown = false;
+        try {
+            Vector::element_type dummy = v[-1];
+        }
+        catch (const std::exception &e) {
+            has_thrown = true;
+        }
+        CHECK(has_thrown);
+    });
+#endif
 }
 
 template <typename Vector>
