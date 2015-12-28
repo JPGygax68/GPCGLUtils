@@ -39,13 +39,13 @@ void test_vector_class_size_2_or_higher()
         CHECK(v.x() == 120 && v.y() == 130);
     });
     test("can be initialized with reference to fixed-dimension C array of size 2", []() {
-        GLfloat values[2]{ 22, 23 };
+        Vector::element_type values[2]{ 22, 23 };
         Vector v{ values };
         CHECK(v.x() == 22 && v.y() == 23);
     });
     test("implicitly converts to const pointer", []() {
         Vector v{ { 101, 102 } };
-        const GLfloat *p = v; // TODO: is this implicit conversion or explicit construction ?
+        const Vector::element_type *p = v; // TODO: is this implicit conversion or explicit construction ?
         CHECK(p[0] == 101 && p[1] == 102);
     });
 }
@@ -55,22 +55,22 @@ void test_vector_class_size_3_or_higher()
 {
     test_vector_class_size_2_or_higher<Vector>();
 
-    test("can be copy-constructed from vec2", []() {
-        gpc::gl::vec2 v2{ { 50,51 } };
-        gpc::gl::vec3 v3(v2);
+    test("can be copy-constructed from vector of size 2", []() {
+        gpc::gl::_vector2_base<Vector::element_type> v2{ { 50, 51 } };
+        Vector v3{ v2 };
         CHECK(v3.x() == 50 && v3.y() == 51 && v3.z() == 0);
     });
     test("can be initialized with 3 constant values", []() {
-        gpc::gl::vec3 v{ 999, 1000, 1001 };
+        Vector v{ 999, 1000, 1001 };
         CHECK(v.x() == 999 && v.y() == 1000 && v.z() == 1001);
     });
     test("can be initialized with wrapped std::array of size 3", []() {
-        gpc::gl::vec3 v{ { 11, 12, 13 } };
+        Vector v{ { 11, 12, 13 } };
         CHECK(v.x() == 11 && v.y() == 12 && v.z() == 13);
     });
     test("can be initialized with reference to fixed-dimension C array of size 3", []() {
-        GLfloat values[]{ 22, 23, 24 };
-        gpc::gl::vec3 v{ values };
+        Vector::element_type values[]{ 22, 23, 24 };
+        Vector v{ values };
         CHECK(v.x() == 22 && v.y() == 23 && v.z() == 24);
     });
 }
@@ -81,25 +81,29 @@ void test_vector_class_size_4()
     test_vector_class_size_3_or_higher<Vector>();
 
     test("can be initialized with 4 values", []() {
-        gpc::gl::vec4 v{ 2000, 2001, 2002, 2003 };
+        Vector v{ 2000, 2001, 2002, 2003 };
         CHECK(v.x() == 2000 && v.y() == 2001 && v.z() == 2002 && v.w() == 2003);
     });
-    test("can be initialized with 3 values", []() {
-        gpc::gl::vec4 v{ 3000, 3001, 3002 };
+    test("can be initialized with 3 values, w set to 1 automatically", []() {
+        Vector v{ 3000, 3001, 3002 };
         CHECK(v.x() == 3000 && v.y() == 3001 && v.z() == 3002 && v.w() == 1);
     });
+    test("when initialized from std::array of size 3, w set to 1 automatically", []() {
+        Vector v{ {4000, 4001, 4002} };
+        CHECK(v.x() == 4000 && v.y() == 4001 && v.z() == 4002 && v.w() == 1);
+    });
     test("can be initialized with reference to fixed-dimension C array of size 4", []() {
-        GLfloat values[]{ 22, 23, 24, 3 };
-        gpc::gl::vec4 v{ values };
+        Vector::element_type values[]{ 22, 23, 24, 3 };
+        Vector v{ values };
         CHECK(v.x() == 22 && v.y() == 23 && v.z() == 24 && v.w() == 3);
     });
     test("can be initialized with reference to fixed-dimension C array of size 3", []() {
-        GLfloat values[]{ 32, 33, 34 };
-        gpc::gl::vec4 v{ values };
+        Vector::element_type values[]{ 32, 33, 34 };
+        Vector v{ values };
         CHECK(v.x() == 32 && v.y() == 33 && v.z() == 34 && v.w() == 1);
     });
-    test("can be initialized with wrapped std::array of size 4", []() {
-        gpc::gl::vec4 v{ { 4000, 4001, 4002, 2 } };
+    test("can be initialized with std::array literal of size 4", []() {
+        Vector v{ { 4000, 4001, 4002, 2 } };
         CHECK(v.x() == 4000 && v.y() == 4001 && v.z() == 4002 && v.w() == 2);
     });
 }
@@ -111,17 +115,32 @@ int main(int argc, char *argv[])
         level_guard lg;
         test_vector_class_size_2_or_higher<gpc::gl::vec2>();
     }
+    print_heading("Testing vector type \"vec2d\"");
+    {
+        level_guard lg;
+        test_vector_class_size_2_or_higher<gpc::gl::vec2d>();
+    }
 
     print_heading("Testing vector type \"vec3\"");
     {
         level_guard lg;
         test_vector_class_size_3_or_higher<gpc::gl::vec3>();
     }
+    print_heading("Testing vector type \"vec3d\"");
+    {
+        level_guard lg;
+        test_vector_class_size_3_or_higher<gpc::gl::vec3d>();
+    }
 
     print_heading("Testing vector type \"vec4\"");
     {
         level_guard lg;
         test_vector_class_size_4<gpc::gl::vec4>();
+    }
+    print_heading("Testing vector type \"vec4d\"");
+    {
+        level_guard lg;
+        test_vector_class_size_4<gpc::gl::vec4d>();
     }
 
 
