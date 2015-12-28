@@ -10,7 +10,7 @@ extern int test_count, fail_count, structure_level;
 
 void test(const std::string &title, std::function<void(void)> func);
 
-auto current_indent() -> std::string;
+void print_heading(const std::string &heading);
 
 class level_guard {
 public:

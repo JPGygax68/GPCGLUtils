@@ -106,19 +106,19 @@ void test_vector_class_size_4()
 
 int main(int argc, char *argv[])
 {
-    std::cout << current_indent() << "Testing vector type \"vec2\"" << std::endl;
+    print_heading("Testing vector type \"vec2\"");
     {
         level_guard lg;
         test_vector_class_size_2_or_higher<gpc::gl::vec2>();
     }
 
-    std::cout << current_indent() << "Testing vector type \"vec3\"" << std::endl;
+    print_heading("Testing vector type \"vec3\"");
     {
         level_guard lg;
         test_vector_class_size_3_or_higher<gpc::gl::vec3>();
     }
 
-    std::cout << current_indent() << "Testing vector type \"vec4\"" << std::endl;
+    print_heading("Testing vector type \"vec4\"");
     {
         level_guard lg;
         test_vector_class_size_4<gpc::gl::vec4>();
