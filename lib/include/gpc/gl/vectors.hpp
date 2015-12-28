@@ -7,32 +7,29 @@ namespace gpc {
     namespace gl {
 
         template <typename ElemT = GLfloat, int Size = 2>
-        class _vector2_base {
+        class _vector2_base: public std::array<ElemT, Size> {
         public:
             using element_type = ElemT;
+            static constexpr int defined_size = Size;
 
-            constexpr _vector2_base() : _elems{} {}
-            constexpr _vector2_base(ElemT x_, ElemT y_) : _elems{ x_, y_ } {}
+            constexpr _vector2_base() { fill(0); }
+            constexpr _vector2_base(ElemT x_, ElemT y_) : std::array<ElemT, Size>({ x_, y_ }) {}
             template <int Size_>
             constexpr _vector2_base(const ElemT (&arr)[Size_]) { 
-                std::copy(std::begin(arr), std::begin(arr) + std::min(Size, Size_) /*std::end(arr)*/, std::begin(_elems)); 
-            }
-            constexpr _vector2_base(std::array<ElemT, Size> &&vals) : _elems{ std::move(vals) } {}
-            constexpr _vector2_base(const _vector2_base<ElemT> &from) {
-                std::copy(std::begin(from._elems), std::end(from._elems), std::begin(_elems));
+                std::copy(std::begin(arr), std::begin(arr) + std::min(Size, Size_), std::begin(*this)); 
             }
 
-            auto& x() { return _elems[0]; }
-            auto& y() { return _elems[1]; }
+            auto& x() { return at(0); }
+            auto& y() { return at(1); }
 
-            operator const ElemT *() const { return &_elems[0]; }
+            // Must be explicit otherwise would conflict with operator []
+            explicit operator const ElemT *() const { return &at(0); }
+            explicit operator ElemT *() { return &at(0); }
 
         protected:
             constexpr explicit _vector2_base(const std::array<ElemT, 2> &from) { 
-                std::copy(std::begin(from), std::end(from), std::begin(_elems)); 
+                std::copy(std::begin(from), std::end(from), std::begin(*this)); 
             }
-
-            std::array<ElemT, Size> _elems;
 
             template <typename ElemT_, int Size_> friend class _vector2_base;
             template <typename ElemT_, int Size_> friend class _vector3_base;
@@ -46,27 +43,27 @@ namespace gpc {
             constexpr _vector3_base(ElemT x_, ElemT y_, ElemT z_) : _vector2_base{ { x_, y_, z_ } } {}
             using _vector2_base<ElemT, Size>::_vector2_base;
             constexpr _vector3_base(const _vector2_base<ElemT, 2> &from) { 
-                std::copy(std::begin(from._elems), std::end(from._elems), std::begin(_elems));
-                _elems[2] = 0; 
+                std::copy(std::begin(from), std::end(from), std::begin(*this));
+                at(2) = 0;
             }
-            auto& z() { return _elems[2]; }
+            auto& z() { return at(2); }
         };
 
         template <typename ElemT = GLfloat>
         class _vector4_base : public _vector3_base<ElemT, 4> {
         public:
             constexpr _vector4_base() : _vector3_base<ElemT, 4>({0, 0, 0, 1}) {}
-            constexpr _vector4_base(ElemT x_, ElemT y_, ElemT z_ = 0) : _vector3_base{ { x_, y_, z_ } } { _elems[3] = 1; }
+            constexpr _vector4_base(ElemT x_, ElemT y_, ElemT z_ = 0) : _vector3_base{ { x_, y_, z_ } } { at(3) = 1; }
             constexpr _vector4_base(ElemT x_, ElemT y_, ElemT z_, ElemT w_) : _vector3_base{ { x_, y_, z_, w_ } } {}
             constexpr _vector4_base(const ElemT (&arr)[4]) : _vector3_base<ElemT, 4>(arr) {}
-            constexpr _vector4_base(const ElemT (&arr)[3]) : _vector3_base<ElemT, 4>(arr[0], arr[1], arr[2]) { _elems[3] = 1; }
-            constexpr _vector4_base(const ElemT (&arr)[2]) : _vector3_base<ElemT, 4>(arr[0], arr[1]) { _elems[2] = 0, _elems[3] = 1; }
+            constexpr _vector4_base(const ElemT (&arr)[3]) : _vector3_base<ElemT, 4>(arr[0], arr[1], arr[2]) { at(3) = 1; }
+            constexpr _vector4_base(const ElemT (&arr)[2]) : _vector3_base<ElemT, 4>(arr[0], arr[1]) { at(2) = 0, at(3) = 1; }
             constexpr _vector4_base(std::array<ElemT, 4> &&vals) : _vector3_base<ElemT, 4>(std::move(vals)) {}
             constexpr _vector4_base(const _vector3_base<ElemT, 3> &from) {
-                std::copy(std::begin(from._elems), std::end(from._elems), std::begin(_elems));
-                _elems[3] = 1;
+                std::copy(std::begin(from), std::end(from), std::begin(*this));
+                at(3) = 1;
             }
-            auto& w() { return _elems[3]; }
+            auto& w() { return at(3); }
         };
 
         using vec2 = _vector2_base<>;

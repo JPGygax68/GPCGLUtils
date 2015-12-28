@@ -43,23 +43,40 @@ void test_vector_class_size_2_or_higher()
         Vector v{ values };
         CHECK(v.x() == 22 && v.y() == 23);
     });
-    test("implicitly converts to const pointer", []() {
+    test("can be explicitly converted to const pointer to elements", []() {
         Vector v{ { 101, 102 } };
-        const Vector::element_type *p = v; // TODO: is this implicit conversion or explicit construction ?
+        auto p = static_cast<const Vector::element_type*>(v);
         CHECK(p[0] == 101 && p[1] == 102);
     });
     test("can be accessed via [] operator", []() {
         Vector v{ 15, 16 };
         CHECK(v[0] == 15 && v[1] == 16);
     });
+    test("size() value is static and equal to defined vector size", []() {
+        Vector v;
+        CHECK(v.size() == Vector::defined_size);
+        Vector v2{ 1, 2 };
+        CHECK(v2.size() == Vector::defined_size);
+    });
 #ifdef _DEBUG
-    test("(DEBUG) throws if [] is negative", []() {
+    test("(DEBUG) at() throws if argument is negative", []() {
         Vector v;
         bool has_thrown = false;
         try {
-            Vector::element_type dummy = v[-1];
+            Vector::element_type dummy = v.at(-1);
         }
-        catch (const std::exception &e) {
+        catch (const std::exception &) {
+            has_thrown = true;
+        }
+        CHECK(has_thrown);
+    });
+    test("(DEBUG) at() throws if argument is equal to or higher than size", []() {
+        Vector v;
+        bool has_thrown = false;
+        try {
+            Vector::element_type dummy = v.at(Vector::defined_size);
+        }
+        catch (const std::exception &) {
             has_thrown = true;
         }
         CHECK(has_thrown);
@@ -127,6 +144,11 @@ void test_vector_class_size_4()
 
 int main(int argc, char *argv[])
 {
+#ifdef _MSC_VER
+    _CrtSetReportMode(_CRT_ASSERT, 0); //_CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG);
+    //_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+#endif
+
     print_heading("Testing vector type \"vec2\"");
     {
         level_guard lg;
