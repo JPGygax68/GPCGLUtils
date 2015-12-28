@@ -7,27 +7,7 @@ using namespace gl;
 
 #include <gpc/gl/vectors.hpp>
 
-static int test_count = 0, fail_count = 0;
-
-#define CHECK(cond) if (!(cond)) throw std::runtime_error(std::string{#cond} + ": NO")
-
-void test(const std::string &title, std::function<void(void)> func)
-{
-    std::cout << title << "...";
-
-    try {
-        test_count ++;
-
-        func();
-
-        std::cout << "...OK" << std::endl;
-    }
-    catch (const std::exception &e)
-    {
-        fail_count ++;
-        std::cout << "FAILED: " << e.what() << std::endl;
-    }
-}
+#include "test.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -48,10 +28,20 @@ int main(int argc, char *argv[])
         gpc::gl::vec2 v{ values };
         CHECK(v.x() == 22 && v.y() == 23);
     });
+    test("vec2: implicitly converts to pointer", []() {
+        gpc::gl::vec2 v{ {101, 102} };
+        const GLfloat *p = v;
+        CHECK(p[0] == 101 && p[1] == 102);
+    });
 
     test("vec3: can be default-constructed", []() {
         gpc::gl::vec3 v;
         CHECK(v.x() == 0 && v.y() == 0 && v.z() == 0);
+    });
+    test("vec3: can be copy-constructed from vec2", []() {
+        gpc::gl::vec2 v2{{50,51}};
+        gpc::gl::vec3 v3(v2);
+        CHECK(v3.x() == 50 && v3.y() == 51 && v3.z() == 0);
     });
     test("vec3: can be initialized with 3 values", []() {
         gpc::gl::vec3 v{ 999, 1000, 1001 };
@@ -80,9 +70,14 @@ int main(int argc, char *argv[])
         CHECK(v.x() == 3000 && v.y() == 3001 && v.z() == 3002 && v.w() == 1);
     });
     test("vec4: can be initialized with reference to fixed-dimension C array", []() {
-        GLfloat values[]{ 22, 23, 24, 25 };
+        GLfloat values[]{ 22, 23, 24, 3 };
         gpc::gl::vec4 v{ values };
-        CHECK(v.x() == 22 && v.y() == 23 && v.z() == 24 && v.w() == 25);
+        CHECK(v.x() == 22 && v.y() == 23 && v.z() == 24 && v.w() == 3);
+    });
+    test("vec4: can be initialized with reference to fixed-dimension C array of size 3", []() {
+        GLfloat values[]{ 32, 33, 34 };
+        gpc::gl::vec4 v{ values };
+        CHECK(v.x() == 32 && v.y() == 33 && v.z() == 34 && v.w() == 1);
     });
     test("vec4: can be initialized with wrapped std::array", []() {
         gpc::gl::vec4 v{ { 4000, 4001, 4002, 2 } };

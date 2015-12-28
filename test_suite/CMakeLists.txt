@@ -1,4 +1,4 @@
-add_executable(test_program main.cpp)
+add_executable(test_program main.cpp test.cpp test.hpp)
 
 target_link_libraries(test_program PRIVATE libGPCGLUtils)
 
