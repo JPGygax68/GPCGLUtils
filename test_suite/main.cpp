@@ -10,12 +10,15 @@ using namespace gl;
 
 #include "test.hpp"
 
-template <typename Vector>
+template <typename Type>
+static void take_vector_element(const Type *) {}
+
+template <typename Vector, size_t Size>
 void test_vector_class_size_2_or_higher()
 {
     static_assert(std::is_default_constructible<Vector>::value, "vector type is not default-constructible");
-    static_assert(std::is_copy_constructible<Vector>::value   , "vector type is not copy-constructible");
-    static_assert(std::is_move_constructible<Vector>::value   , "vector type is not move-constructible");
+    static_assert(std::is_copy_constructible<Vector>::value   , "vector type is not copy-constructible"   );
+    static_assert(std::is_move_constructible<Vector>::value   , "vector type is not move-constructible"   );
 
     test("can be default-constructed", []() {
         Vector v;
@@ -26,13 +29,13 @@ void test_vector_class_size_2_or_higher()
         Vector v2{ v1 };
         CHECK(v2.x() == 1 && v2.y() == 2);
     });
-    test("move-constructed instance has correct values", []() {
-        Vector v2{ Vector{3, 4} };
-        CHECK(v2.x() == 3 && v2.y() == 4);
-    });
     test("can be initialized with value pair", []() {
         Vector v{ 12, 13 };
         CHECK(v.x() == 12 && v.y() == 13);
+    });
+    test("move-constructed instance has correct values", []() {
+        Vector v2{ Vector{3, 4} };
+        CHECK(v2.x() == 3 && v2.y() == 4);
     });
     test("can be initialized with std::array literal of size 2", []() {
         Vector v{ { 120, 130 } };
@@ -43,20 +46,24 @@ void test_vector_class_size_2_or_higher()
         Vector v{ values };
         CHECK(v.x() == 22 && v.y() == 23);
     });
-    test("can be explicitly converted to const pointer to elements", []() {
+    test("implicitly converts to reference to std::array", []() {
         Vector v{ { 101, 102 } };
-        auto p = static_cast<const Vector::element_type*>(v);
-        CHECK(p[0] == 101 && p[1] == 102);
+        std::array<Vector::element_type, Size> &a = v;
+        CHECK(a[0] == 101 && a[1] == 102);
+    });
+    test("can be passed as argument to function expecting const pointer", []() {
+        Vector v{ { 101, 102 } };
+        take_vector_element<Vector::element_type>(v);
     });
     test("can be accessed via [] operator", []() {
         Vector v{ 15, 16 };
         CHECK(v[0] == 15 && v[1] == 16);
     });
-    test("size() value is static and equal to defined vector size", []() {
+    test("size() value matches defined vector size", []() {
         Vector v;
-        CHECK(v.size() == Vector::defined_size);
+        CHECK(v.size() == Size);
         Vector v2{ 1, 2 };
-        CHECK(v2.size() == Vector::defined_size);
+        CHECK(v2.size() == Size);
     });
 #ifdef _DEBUG
     test("(DEBUG) at() throws if argument is negative", []() {
@@ -70,13 +77,13 @@ void test_vector_class_size_2_or_higher()
         }
         CHECK(has_thrown);
     });
-    test("(DEBUG) at() throws if argument is equal to or higher than size", []() {
+    test("(DEBUG) at() throws out_of_range if argument is equal to size", []() {
         Vector v;
         bool has_thrown = false;
         try {
-            Vector::element_type dummy = v.at(Vector::defined_size);
+            Vector::element_type dummy = v.at(Size);
         }
-        catch (const std::exception &) {
+        catch (const std::out_of_range &) {
             has_thrown = true;
         }
         CHECK(has_thrown);
@@ -84,10 +91,10 @@ void test_vector_class_size_2_or_higher()
 #endif
 }
 
-template <typename Vector>
+template <typename Vector, size_t Size>
 void test_vector_class_size_3_or_higher()
 {
-    test_vector_class_size_2_or_higher<Vector>();
+    test_vector_class_size_2_or_higher<Vector, Size>();
 
     test("can be copy-constructed from vector of size 2", []() {
         gpc::gl::_vector2_base<Vector::element_type> v2{ { 50, 51 } };
@@ -112,7 +119,7 @@ void test_vector_class_size_3_or_higher()
 template <typename Vector>
 void test_vector_class_size_4()
 {
-    test_vector_class_size_3_or_higher<Vector>();
+    test_vector_class_size_3_or_higher<Vector, 4>();
 
     test("can be initialized with 4 values", []() {
         Vector v{ 2000, 2001, 2002, 2003 };
@@ -145,30 +152,29 @@ void test_vector_class_size_4()
 int main(int argc, char *argv[])
 {
 #ifdef _MSC_VER
-    _CrtSetReportMode(_CRT_ASSERT, 0); //_CRTDBG_MODE_FILE | _CRTDBG_MODE_DEBUG);
-    //_CrtSetReportFile(_CRT_ASSERT, _CRTDBG_FILE_STDERR);
+    _CrtSetReportMode(_CRT_ASSERT, 0);
 #endif
 
     print_heading("Testing vector type \"vec2\"");
     {
         level_guard lg;
-        test_vector_class_size_2_or_higher<gpc::gl::vec2>();
+        test_vector_class_size_2_or_higher<gpc::gl::vec2, 2>();
     }
     print_heading("Testing vector type \"vec2d\"");
     {
         level_guard lg;
-        test_vector_class_size_2_or_higher<gpc::gl::vec2d>();
+        test_vector_class_size_2_or_higher<gpc::gl::vec2d, 2>();
     }
 
     print_heading("Testing vector type \"vec3\"");
     {
         level_guard lg;
-        test_vector_class_size_3_or_higher<gpc::gl::vec3>();
+        test_vector_class_size_3_or_higher<gpc::gl::vec3, 3>();
     }
     print_heading("Testing vector type \"vec3d\"");
     {
         level_guard lg;
-        test_vector_class_size_3_or_higher<gpc::gl::vec3d>();
+        test_vector_class_size_3_or_higher<gpc::gl::vec3d, 3>();
     }
 
     print_heading("Testing vector type \"vec4\"");
