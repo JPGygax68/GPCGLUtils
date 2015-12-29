@@ -115,6 +115,11 @@ void test_vector_class_size_3_or_higher()
         Vector v{ values };
         CHECK(v.x() == 22 && v.y() == 23 && v.z() == 24);
     });
+    test("can be copy-constructed from a vector of size 2", []() {
+        gpc::gl::_vector2_base<Vector::element_type, 2> v2{ 1, 2 };
+        Vector v3{ v2 };
+        CHECK(v3.x() == 1 && v3.y() == 2 && v3.z() == 0);
+    });
 }
 
 template <typename Vector, int Size>
@@ -143,6 +148,11 @@ void test_vector_class_size_4()
         Vector::element_type values[]{ 32, 33, 34 };
         Vector v{ values };
         CHECK(v.x() == 32 && v.y() == 33 && v.z() == 34 && v.w() == 1);
+    });
+    test("can be initialized from a vector of size 3", []() {
+        gpc::gl::_vector3_base<Vector::element_type> v3 { 1, 2, 3};
+        Vector v4{ v3 };
+        CHECK(v4.x() == 1 && v4.y() == 2 && v4.z() == 3 && v4.w() == 1);
     });
     test("can be initialized with std::array literal of size 4", []() {
         Vector v{ std::array<Vector::element_type, 4>{ 4000, 4001, 4002, 2 } };
