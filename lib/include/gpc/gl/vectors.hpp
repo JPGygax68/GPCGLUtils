@@ -33,6 +33,9 @@ namespace gpc {
                 std::fill(std::begin(_elems) + Size_, std::end(_elems), static_cast<ElemT>(0));
             }
 
+            auto& operator = (_vector2_base &&from) { _elems = std::move(from._elems); return *this; }
+            auto& operator = (const _vector2_base &from) { _elems = from._elems; return *this; }
+
             constexpr int size() const { return Size; }
 
             auto& x() { return _elems[0]; }

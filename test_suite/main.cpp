@@ -22,6 +22,8 @@ void test_vector_class_size_2_or_higher()
     static_assert(std::is_default_constructible<Vector>::value, "vector type is not default-constructible");
     static_assert(std::is_copy_constructible<Vector>::value   , "vector type is not copy-constructible"   );
     static_assert(std::is_move_constructible<Vector>::value   , "vector type is not move-constructible"   );
+    static_assert(std::is_move_assignable<Vector>::value      , "vector type is not move-assignable"      );
+    static_assert(std::is_copy_assignable<Vector>::value      , "vector type is not copy-assignable"      );
 
     test("can be default-constructed", []() {
         Vector v;
@@ -73,6 +75,18 @@ void test_vector_class_size_2_or_higher()
         CHECK(v.size() == defined_size);
         Vector v2{ 1, 2 };
         CHECK(v2.size() == defined_size);
+    });
+    test("can be assigned temporary of same type (move-assign)", []() {
+        Vector v{ 1, 2 };
+        CHECK(v.x() == 1 && v.y() == 2); // to prevent initialization from being optimized away
+        v = Vector{ 3, 4 };
+        CHECK(v.x() == 3 && v.y() == 4);
+    });
+    test("can be assigned another vector of same type", []() {
+        Vector v1{ 1, 2 };
+        Vector v2{ 3, 4 };
+        v2 = v1;
+        CHECK(v2.x() == 1 && v2.y() == 2);
     });
     test("members can be iterated on (writing)", []() {
         Vector v;
