@@ -6,7 +6,7 @@
 
 extern int test_count, fail_count, structure_level;
 
-#define CHECK(cond) if (!(cond)) throw std::runtime_error(std::string{#cond} + ": NO")
+#define CHECK(cond) { if (!(cond)) throw std::runtime_error(std::string{#cond} + ": NO"); }
 
 void test(const std::string &title, std::function<void(void)> func);
 

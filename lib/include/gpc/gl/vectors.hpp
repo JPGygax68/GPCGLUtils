@@ -13,6 +13,7 @@ namespace gpc {
             using element_type = ElemT;
             using c_array = ElemT[Size];
             using const_c_array = const ElemT[Size];
+            static constexpr size_t defined_size = Size;
 
             constexpr _vector2_base() : _elems({0}) {}
             constexpr _vector2_base(ElemT x_, ElemT y_ = 0) : _elems({ x_, y_ }) {}
@@ -52,6 +53,11 @@ namespace gpc {
             operator c_array & () { return *reinterpret_cast<c_array*>(_elems.data()); }
             operator const_c_array & () const { return *reinterpret_cast<const_c_array*>(_elems.data()); }
             
+            const auto begin() const { return _elems.begin(); }
+            auto begin() { return _elems.begin(); }
+            const auto end() const { return _elems.end(); }
+            auto end() { return _elems.end(); }
+
         protected:
             constexpr explicit _vector2_base(const std::array<ElemT, 2> &from) { 
                 std::copy(std::begin(from), std::end(from), std::begin(_elems)); 
