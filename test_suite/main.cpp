@@ -11,7 +11,7 @@ using namespace gl;
 #include "test.hpp"
 
 template <typename Type>
-static void take_vector_element(const Type *) {}
+static Type get_element(const Type *val, int index) { return val[index]; }
 
 template <typename Vector, size_t Size>
 void test_vector_class_size_2_or_higher()
@@ -53,7 +53,8 @@ void test_vector_class_size_2_or_higher()
     });
     test("can be passed as argument to function expecting const pointer", []() {
         Vector v{ { 101, 102 } };
-        take_vector_element<Vector::element_type>(v);
+        CHECK(get_element<Vector::element_type>(v, 0) == 101);
+        CHECK(get_element<Vector::element_type>(v, 1) == 102);
     });
     test("can be accessed via [] operator", []() {
         Vector v{ 15, 16 };
@@ -101,7 +102,7 @@ void test_vector_class_size_3_or_higher()
         Vector v3{ v2 };
         CHECK(v3.x() == 50 && v3.y() == 51 && v3.z() == 0);
     });
-    test("can be initialized with 3 constant values", []() {
+    test("can be initialized with 3 literal values", []() {
         Vector v{ 999, 1000, 1001 };
         CHECK(v.x() == 999 && v.y() == 1000 && v.z() == 1001);
     });
@@ -116,12 +117,12 @@ void test_vector_class_size_3_or_higher()
     });
 }
 
-template <typename Vector>
+template <typename Vector, int Size>
 void test_vector_class_size_4()
 {
     test_vector_class_size_3_or_higher<Vector, 4>();
 
-    test("can be initialized with 4 values", []() {
+    test("can be initialized with 4 literal values", []() {
         Vector v{ 2000, 2001, 2002, 2003 };
         CHECK(v.x() == 2000 && v.y() == 2001 && v.z() == 2002 && v.w() == 2003);
     });
@@ -130,7 +131,7 @@ void test_vector_class_size_4()
         CHECK(v.x() == 3000 && v.y() == 3001 && v.z() == 3002 && v.w() == 1);
     });
     test("when initialized from std::array of size 3, w set to 1 automatically", []() {
-        Vector v{ {4000, 4001, 4002} };
+        Vector v{ std::array<Vector::element_type, 3>{4000, 4001, 4002} };
         CHECK(v.x() == 4000 && v.y() == 4001 && v.z() == 4002 && v.w() == 1);
     });
     test("can be initialized with reference to fixed-dimension C array of size 4", []() {
@@ -144,7 +145,7 @@ void test_vector_class_size_4()
         CHECK(v.x() == 32 && v.y() == 33 && v.z() == 34 && v.w() == 1);
     });
     test("can be initialized with std::array literal of size 4", []() {
-        Vector v{ { 4000, 4001, 4002, 2 } };
+        Vector v{ std::array<Vector::element_type, 4>{ 4000, 4001, 4002, 2 } };
         CHECK(v.x() == 4000 && v.y() == 4001 && v.z() == 4002 && v.w() == 2);
     });
 }
@@ -180,12 +181,12 @@ int main(int argc, char *argv[])
     print_heading("Testing vector type \"vec4\"");
     {
         level_guard lg;
-        test_vector_class_size_4<gpc::gl::vec4>();
+        test_vector_class_size_4<gpc::gl::vec4, 4>();
     }
     print_heading("Testing vector type \"vec4d\"");
     {
         level_guard lg;
-        test_vector_class_size_4<gpc::gl::vec4d>();
+        test_vector_class_size_4<gpc::gl::vec4d, 4>();
     }
 
 
