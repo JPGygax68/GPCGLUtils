@@ -132,6 +132,8 @@ namespace gpc {
         using vec3d = _vector3_base<GLdouble>;
         using vec4d = _vector4_base<GLdouble>;
 
+        static_assert(std::is_copy_constructible<vec2>::value, "gpc::gl::vec2 is not copy-constructible");
+
     } // ns gl
 
 } // ns gl

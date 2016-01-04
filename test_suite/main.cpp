@@ -78,7 +78,7 @@ void test_vector_class_size_2_or_higher()
     });
     test("can be assigned temporary of same type (move-assign)", []() {
         Vector v{ 1, 2 };
-        CHECK(v.x() == 1 && v.y() == 2); // to prevent initialization from being optimized away
+        CHECK(v.x() == 1 && v.y() == 2); // to prevent above initialization from being optimized away
         v = Vector{ 3, 4 };
         CHECK(v.x() == 3 && v.y() == 4);
     });
@@ -206,6 +206,13 @@ void test_vector_class_size_4()
     test("can be initialized with std::array literal of size 4", []() {
         Vector v{ std::array<Vector::element_type, 4>{ 4000, 4001, 4002, 2 } };
         CHECK(v.x() == 4000 && v.y() == 4001 && v.z() == 4002 && v.w() == 2);
+    });
+    test("can be assigned a vector of size 3", []() {
+        Vector v4{ 1, 2, 3, 4 };
+        gpc::gl::_vector3_base<element_type, 3> v3{ 5, 6, 7 };
+        CHECK(v4.x() == 1); // to prevent initialization of v4 from being optimized away
+        v4 = v3;
+        CHECK(v4.x() == 5 && v4.y() == 6 && v4.z() == 7 && v4.w() == 1);
     });
 }
 
