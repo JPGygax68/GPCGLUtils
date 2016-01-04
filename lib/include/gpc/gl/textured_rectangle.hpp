@@ -98,7 +98,7 @@ namespace gpc {
 
                 bindTexture();
 
-                EXEC_GL(glTexImage2D, TextureType, 0, internal_format, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
+                GL(TexImage2D, TextureType, 0, internal_format, width, height, 0, format, GL_UNSIGNED_BYTE, pixels);
             }
 
             void draw() {
@@ -112,14 +112,14 @@ namespace gpc {
 
             void drawBlank() {
 
-                EXEC_GL(glBindTexture, TextureType, 0);
+                GL(BindTexture, TextureType, 0);
 
                 TriangleStrip::draw(4);
             }
 
             void unbindAll() {
 
-                EXEC_GL(glBindTexture, TextureType, 0);
+                GL(BindTexture, TextureType, 0);
             }
 
         private:
@@ -167,16 +167,16 @@ namespace gpc {
 
             template <> struct TexManager<true> {
                 auto genTexture() -> GLuint {
-                    EXEC_GL(glGenTextures, 1, &texture);
+                    GL(GenTextures, 1, &texture);
                     return texture;
                 }
 
                 void freeTexture() {
-                    EXEC_GL(glDeleteTextures, 1, &texture);
+                    GL(DeleteTextures, 1, &texture);
                     texture = 0;
                 }
 
-                void bindTexture() { EXEC_GL(glBindTexture, TextureType, texture); }
+                void bindTexture() { GL(BindTexture, TextureType, texture); }
 
                 void checkOwningTexture() {}
 
