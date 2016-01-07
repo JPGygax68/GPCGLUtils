@@ -78,14 +78,42 @@ namespace gpc {
             return buildShaderProgram(vertex_shader, fragment_shader);
         }
 
-        inline GLuint buildShaderProgram(GLuint vertex_shader, GLuint fragment_shader) {
+        inline void checkShaderCompileStatus(GLuint shader)
+        {
+            GLint status;
+            GL(GetShaderiv, shader, GL_COMPILE_STATUS, &status);
+            if (!status) throw std::runtime_error("shader compile status is not \"successful\"");
+        }
 
+        inline void checkShaderProgramLinkStatus(GLuint program)
+        {
+            GLint is_linked = 0;
+            GL(GetProgramiv, program, GL_LINK_STATUS, &is_linked);
+            if (!is_linked) throw std::runtime_error("shader program has not been linked successfully");
+        }
+
+        inline GLuint buildShaderProgram(GLuint vertex_shader, GLuint fragment_shader)
+        {
             GLuint program = GL(CreateProgram);
 
-            GL(AttachShader, program, vertex_shader);
-            GL(AttachShader, program, fragment_shader);
+            if (vertex_shader)
+            {
+                checkShaderCompileStatus(vertex_shader);
+                GL(AttachShader, program, vertex_shader);
+            }
+            if (fragment_shader)
+            {
+                checkShaderCompileStatus(fragment_shader);
+                GL(AttachShader, program, fragment_shader);
+            }
 
             GL(LinkProgram, program);
+            checkShaderProgramLinkStatus(program);
+
+            GL(ValidateProgram, program);
+
+            //if (vertex_shader  ) GL(DetachShader, program, vertex_shader  );
+            //if (fragment_shader) GL(DetachShader, program, fragment_shader);
 
             return program;
         }
