@@ -1,3 +1,7 @@
+project(libGPCGLUtils)
+
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/CMake ${CMAKE_MODULE_PATH})
+
 # This library is (almost) header-only, so headers come first:
 set(HEADER_FILES 
   "include/gpc/gl/utils.hpp" 
@@ -29,9 +33,9 @@ foreach(flag
 endforeach()
 endif()
 
-add_library(libGPCGLUtils STATIC ${SOURCE_FILES} ${HEADER_FILES} ${SHADER_FILES})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES} ${HEADER_FILES} ${SHADER_FILES})
 
-target_include_directories(libGPCGLUtils BEFORE
+target_include_directories(${PROJECT_NAME} BEFORE
   PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/generated>
@@ -48,21 +52,31 @@ foreach(shader_file ${SHADER_FILES})
   set(in_file "${CMAKE_CURRENT_SOURCE_DIR}/${shader_file}")
   set(out_file "${CMAKE_CURRENT_BINARY_DIR}/generated/${shader_file}.h")
   #target_sources(dummy PRIVATE "${out_file}")
-  target_sources(libGPCGLUtils PRIVATE "${out_file}")
+  target_sources(${PROJECT_NAME} PRIVATE "${out_file}")
   add_custom_command(OUTPUT "${out_file}" COMMAND GPCBin2C -i "${in_file}" -o "${out_file}" DEPENDS "${in_file}")
   #list(APPEND shader_headers "${CMAKE_CURRENT_BINARY_DIR}/generated/${shader_file}.h")
 endforeach()
 
 find_package(libGPCGLWrappers REQUIRED)
-target_link_libraries(libGPCGLUtils PUBLIC libGPCGLWrappers)
+target_link_libraries(${PROJECT_NAME} PUBLIC libGPCGLWrappers)
 
 # The GLbinding dependency is private - we only need the GL types
-find_package(glbinding REQUIRED)
-target_link_libraries(libGPCGLUtils PUBLIC ${GLBINDING_DIRECTORIES})
-target_compile_definitions(libGPCGLUtils PRIVATE GLBINDING_STATIC)
+# GLBinding (OpenGL bindings)
+if (TARGET GLBinding)
+    target_link_libraries(${PROJECT_NAME} PRIVATE GLBinding)
+else()
+    find_package(GLBinding REQUIRED)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${GLBINDING_INCLUDE_DIR})
+    message("GLBINDING_LIBRARIES:${GLBINDING_LIBRARIES}")
+    message("GLBINDING_DEBUG_LIBRARIES:${GLBINDING_DEBUG_LIBRARIES}")
+    target_link_libraries(${PROJECT_NAME} PRIVATE 
+        $<$<CONFIG:Release>:${GLBINDING_LIBRARIES}>
+        $<$<CONFIG:Debug>:${GLBINDING_DEBUG_LIBRARIES}>)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE GLBINDING_STATIC)
+endif()
 
-export(TARGETS libGPCGLUtils FILE libGPCGLUtils-targets.cmake)
-configure_file(libGPCGLUtils-config.cmake.in libGPCGLUtils-config.cmake @ONLY)
-export(PACKAGE libGPCGLUtils)
+export(TARGETS ${PROJECT_NAME} FILE ${PROJECT_NAME}-targets.cmake)
+configure_file(${PROJECT_NAME}-config.cmake.in ${PROJECT_NAME}-config.cmake @ONLY)
+export(PACKAGE ${PROJECT_NAME})
 
 # TODO: install
