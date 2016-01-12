@@ -19,7 +19,7 @@ namespace gpc {
 
         // TODO: rename, since it can now contain multiple strips ?
 
-        template <class VertexData, const VertexAttribute *AttribList = nullptr, unsigned int AttribCount = 0>
+        template <class VertexData = FloatVec3, const VertexAttribute *AttribList = nullptr, unsigned int AttribCount = 0>
         class TriangleStrip {
             
         public:
@@ -32,14 +32,14 @@ namespace gpc {
 
             void allocResources() {
                 
-                EXEC_GL(glGenBuffers, 1, &vertex_buffer);
-                EXEC_GL(glGenBuffers, 1, &index_buffer);
+                GL(GenBuffers, 1, &vertex_buffer);
+                GL(GenBuffers, 1, &index_buffer);
             }
             
             void freeResources() {
 
-                EXEC_GL(glDeleteBuffers, 1, &vertex_buffer);
-                EXEC_GL(glDeleteBuffers, 1, &index_buffer);
+                GL(DeleteBuffers, 1, &vertex_buffer);
+                GL(DeleteBuffers, 1, &index_buffer);
             }
             
             void uploadData(size_t vertex_count, const vertex_t *vertices) {
@@ -52,13 +52,13 @@ namespace gpc {
 
             void uploadData(size_t vertex_count, const vertex_t *vertices, size_t index_count, const index_t *indices) {
 
-                EXEC_GL(glBindBuffer, GL_ARRAY_BUFFER, vertex_buffer);
-                EXEC_GL(glBufferData, GL_ARRAY_BUFFER, vertex_count * sizeof(vertex_t), vertices, GL_STATIC_DRAW);
-                EXEC_GL(glBindBuffer, GL_ARRAY_BUFFER, 0);
+                GL(BindBuffer, GL_ARRAY_BUFFER, vertex_buffer);
+                GL(BufferData, GL_ARRAY_BUFFER, vertex_count * sizeof(vertex_t), vertices, GL_STATIC_DRAW);
+                GL(BindBuffer, GL_ARRAY_BUFFER, 0);
 
-                EXEC_GL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, index_buffer);
-                EXEC_GL(glBufferData, GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(index_t), indices, GL_STATIC_DRAW);
-                EXEC_GL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
+                GL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, index_buffer);
+                GL(BufferData, GL_ELEMENT_ARRAY_BUFFER, index_count * sizeof(index_t), indices, GL_STATIC_DRAW);
+                GL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
             }
 
             void draw(size_t index_count) {
@@ -68,25 +68,38 @@ namespace gpc {
             
             void draw(size_t index_base, size_t index_count) {
 
-                EXEC_GL(glBindBuffer, GL_ARRAY_BUFFER, vertex_buffer);
-                //EXEC_GL(glEnableClientState, (GL_VERTEX_ARRAY));
-                //EXEC_GL(glVertexPointer, 2, GL_INT, sizeof(vertex_t), (void*)0); // TODO: HACK! REMOVE! REMOVE!
+                GL(BindBuffer, GL_ARRAY_BUFFER, vertex_buffer);
 
-                size_t offset = 0;
-                const VertexAttribute *attr = AttribList;
-                for (GLuint i = 0; i < AttribCount; i ++, attr++) {
-                    EXEC_GL(glEnableVertexAttribArray, attr->index);
-                    EXEC_GL(glVertexAttribPointer, attr->index, attr->count, attr->type, GL_FALSE, sizeof(vertex_t), (const GLvoid *)offset);
-                    offset += attr->count * attributeSize(attr->type);
+                if (AttribList) {
+                    size_t offset = 0;
+                    const VertexAttribute *attr = AttribList;
+                    for (GLuint i = 0; i < AttribCount; i++, attr++) {
+                        GL(EnableVertexAttribArray, attr->index);
+                        GL(VertexAttribPointer, attr->index, attr->count, attr->type, GL_FALSE, sizeof(VertexData), (const GLvoid *)offset);
+                        offset += attr->count * attributeSize(attr->type);
+                    }
                 }
+                else {
+                    GL(EnableClientState, (GL_VERTEX_ARRAY));
+                    GL(VertexPointer, 3, GL_FLOAT, sizeof(vertex_t), (void*)0); // TODO: HACK! REMOVE! REMOVE!
+                    // TODO: use glTexCoordPointer() as well when necessary
+                }
+                GL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, index_buffer);
 
-                EXEC_GL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, index_buffer);
+                GL(DrawElements, GL_TRIANGLE_STRIP, index_count, GL_UNSIGNED_SHORT, (void*)(index_base*sizeof(GLushort)));
 
-                EXEC_GL(glDrawElements, GL_TRIANGLE_STRIP, index_count, GL_UNSIGNED_SHORT, (void*)(index_base*sizeof(GLushort)));
-
-                EXEC_GL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
-                EXEC_GL(glBindBuffer, GL_ARRAY_BUFFER, 0);
-                //EXEC_GL(glDisableClientState, (GL_VERTEX_ARRAY));
+                GL(BindBuffer, GL_ELEMENT_ARRAY_BUFFER, 0);
+                GL(BindBuffer, GL_ARRAY_BUFFER, 0);
+                if (AttribList) {
+                    const VertexAttribute *attr = AttribList;
+                    for (GLuint i = 0; i < AttribCount; i++, attr++) {
+                        GL(DisableVertexAttribArray, attr->index);
+                    }
+                }
+                else
+                {
+                    GL(DisableClientState, (GL_VERTEX_ARRAY));
+                }
             }
 
         private:
@@ -100,7 +113,7 @@ namespace gpc {
                 case GL_FLOAT: return sizeof(GLfloat);
                 case GL_DOUBLE: return sizeof(GLdouble);
                 // TODO: support all types supported by glVertexAttribPointer()
-                default: assert(false);
+                default: assert(false); return 0;
                 }
             }
 
