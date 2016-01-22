@@ -16,6 +16,8 @@ namespace gpc {
 
         auto getShaderCompilationLog(GLuint shader) -> std::string;
             
+        auto insertLinesIntoShaderSource(const std::string &source, const std::string &lines) -> std::string;
+
         auto compileShader(GLuint shader, const std::string &source, const std::string &defines = "") -> std::string;
 
         GLuint buildShaderProgram(const std::string &vertex_code, const std::string &fragment_code);
@@ -46,6 +48,27 @@ namespace gpc {
             return log;
         }
 
+        inline auto 
+        insertLinesIntoShaderSource(const std::string &source, const std::string &inserts) -> std::string
+        {
+            // Traverse the source line by line
+            for (size_t i = 0, j = 0; (j = source.find("\n", i)) != std::string::npos; i = j + 1)
+            {
+                size_t len = j - i;
+                if (len > 8 && source.substr(i, 8) == "#version")
+                {
+                    // "#version" line found, insert extra lines just after that
+                    // TODO: use "#line" statement to make error messages less confusing
+                    return source.substr(0, j + 1) + inserts + "\n" + source.substr(j + 1);
+                }
+            }
+
+            // No "#version" found -> insert at the beginning
+            return inserts + "\n" + source;
+        }
+
+        /** header_lines: how many lines to skip before inserting define's
+         */
         inline auto
         compileShader(GLuint shader, const std::string &source, const std::string &defines) -> std::string
         {
