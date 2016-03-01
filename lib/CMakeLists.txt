@@ -79,7 +79,6 @@ if (0)
 export(TARGETS ${PROJECT_NAME} FILE ${PROJECT_NAME}-targets.cmake)
 configure_file(${PROJECT_NAME}-config.cmake.in ${PROJECT_NAME}-config.cmake @ONLY)
 export(PACKAGE ${PROJECT_NAME})
-endif()
 
 # TODO: install
 endif()
