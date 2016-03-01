@@ -82,3 +82,4 @@ export(PACKAGE ${PROJECT_NAME})
 endif()
 
 # TODO: install
+endif()
