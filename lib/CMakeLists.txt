@@ -44,7 +44,9 @@ target_include_directories(${PROJECT_NAME} BEFORE
 
 # "Embed" all shader files (convert to header files)
 
-find_package(GPCBin2C REQUIRED)
+if (NOT TARGET gpcbin2c)
+    find_package(gpcbin2c REQUIRED)
+endif()
 
 set(shader_headers)
 foreach(shader_file ${SHADER_FILES})
@@ -53,19 +55,21 @@ foreach(shader_file ${SHADER_FILES})
   set(out_file "${CMAKE_CURRENT_BINARY_DIR}/generated/${shader_file}.h")
   #target_sources(dummy PRIVATE "${out_file}")
   target_sources(${PROJECT_NAME} PRIVATE "${out_file}")
-  add_custom_command(OUTPUT "${out_file}" COMMAND GPCBin2C -i "${in_file}" -o "${out_file}" DEPENDS "${in_file}")
+  add_custom_command(OUTPUT "${out_file}" COMMAND gpcbin2c -i "${in_file}" -o "${out_file}" DEPENDS "${in_file}")
   #list(APPEND shader_headers "${CMAKE_CURRENT_BINARY_DIR}/generated/${shader_file}.h")
 endforeach()
 
-find_package(libGPCGLWrappers REQUIRED)
+if (NOT TARGET libGPCGLWrappers)
+    find_package(libGPCGLWrappers REQUIRED)
+endif()
 target_link_libraries(${PROJECT_NAME} PUBLIC libGPCGLWrappers)
 
 # The GLbinding dependency is private - we only need the GL types
 # GLBinding (OpenGL bindings)
-if (TARGET GLBinding)
-    target_link_libraries(${PROJECT_NAME} PRIVATE GLBinding)
+if (TARGET glbinding)
+    target_link_libraries(${PROJECT_NAME} PRIVATE glbinding)
 else()
-    find_package(GLBinding REQUIRED)
+    find_package(glbinding REQUIRED)
     target_include_directories(${PROJECT_NAME} PRIVATE ${GLBINDING_INCLUDE_DIR})
     message("GLBINDING_LIBRARIES:${GLBINDING_LIBRARIES}")
     message("GLBINDING_DEBUG_LIBRARIES:${GLBINDING_DEBUG_LIBRARIES}")

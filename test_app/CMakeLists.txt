@@ -16,7 +16,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE ${SDL2_LIBRARY})
 target_link_libraries(${PROJECT_NAME} PRIVATE opengl32)
 
 # GLBinding
-find_package(glbinding REQUIRED)
+if (NOT TARGET glbinding)
+    find_package(glbinding REQUIRED)
+endif()
 target_include_directories(${PROJECT_NAME} PRIVATE ${GLBINDING_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${GLBINDING_LIBRARIES})
 target_compile_definitions(${PROJECT_NAME} PRIVATE GLBINDING_STATIC)
