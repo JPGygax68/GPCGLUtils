@@ -23,13 +23,13 @@ namespace gpc {
 
         // TODO: use perfect forwarding to call the normal setUniform() variants
         // from the name-checking ones ?
-
+        
         // Simple integers ------------------------------------------
 
         inline void 
         setUniform(GLuint index, GLint value)
         {
-            EXEC_GL(glUniform1i, index, value);
+            GL(Uniform1i, index, value);
         }
 
         inline void
@@ -43,7 +43,13 @@ namespace gpc {
         inline void 
         setUniform(GLuint index, const FloatVec4 &values)
         {
-            EXEC_GL(glUniform4fv, index, 1, values);
+            GL(Uniform4fv, index, 1, values);
+        }
+
+        inline void 
+        setUniform(GLuint index, const std::array<GLfloat, 4> &values)
+        {
+            GL(Uniform4fv, index, 1, &values[0]);
         }
 
         // Pixel-aligned (integer) coordinates ----------------------
@@ -51,7 +57,7 @@ namespace gpc {
         inline void
         setUniform(GLuint index, const IntVec2 &values)
         {
-            EXEC_GL(glUniform2iv, index, 1, values);
+            GL(Uniform2iv, index, 1, values);
         }
 
         // Somewhat exotic: vector of 4 integers --------------------
@@ -59,7 +65,7 @@ namespace gpc {
         inline void
         setUniform(GLuint index, const IntVec4 &values)
         {
-            EXEC_GL(glUniform4iv, index, 1, values);
+            GL(Uniform4iv, index, 1, values);
         }
 
         // 3x3 matrix (for 2D transforms) ---------------------------
@@ -67,20 +73,27 @@ namespace gpc {
         inline void
         setUniform(GLuint index, const Matrix3 &values)
         {
-            EXEC_GL(glUniformMatrix3fv, index, 1, GL_FALSE, &values[0][0]);
+            GL(UniformMatrix3fv, index, 1, GL_FALSE, &values[0][0]);
+        }
+
+        inline void
+        setUniformMatrix2(const char *name, GLuint index, const GLfloat *values)
+        {
+            checkUniformLocation(name, index);
+            GL(UniformMatrix2fv, index, 1, GL_FALSE, values);
         }
 
         inline void
         setUniformMatrix3(const char *name, GLuint index, const GLfloat *values)
         {
             checkUniformLocation(name, index);
-            EXEC_GL(glUniformMatrix3fv, index, 1, GL_FALSE, values);
+            GL(UniformMatrix3fv, index, 1, GL_FALSE, values);
         }
 
         inline void
         setUniformMatrix3(GLuint index, const GLfloat *values)
         {
-            EXEC_GL(glUniformMatrix3fv, index, 1, GL_FALSE, values);
+            GL(UniformMatrix3fv, index, 1, GL_FALSE, values);
         }
 
         // Classic 4x4 matrix ---------------------------------------
@@ -88,13 +101,13 @@ namespace gpc {
         inline void
         setUniform(GLuint index, const Matrix4 &values)
         {
-            EXEC_GL(glUniformMatrix4fv, index, 1, GL_FALSE, &values[0][0]);
+            GL(UniformMatrix4fv, index, 1, GL_FALSE, &values[0][0]);
         }
 
         inline void
         setUniformMatrix4(GLuint index, const GLfloat *values)
         {
-            EXEC_GL(glUniformMatrix4fv, index, 1, GL_FALSE, values);
+            GL(UniformMatrix4fv, index, 1, GL_FALSE, values);
         }
 
         // Name-checking variants -----------------------------------
