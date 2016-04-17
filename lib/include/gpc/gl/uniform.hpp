@@ -18,7 +18,7 @@ namespace gpc {
             assert(loc == location);
         }
 #else
-        inline void checkUniformLocation(const char *name, GLuint index) {}
+        inline void checkUniformLocation(const char * /*name*/, GLuint /*index*/) {}
 #endif
 
         // TODO: use perfect forwarding to call the normal setUniform() variants
