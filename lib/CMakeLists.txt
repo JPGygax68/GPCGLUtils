@@ -71,8 +71,8 @@ if (TARGET glbinding)
 else()
     find_package(glbinding REQUIRED)
     target_include_directories(${PROJECT_NAME} PRIVATE ${GLBINDING_INCLUDE_DIR})
-    message("GLBINDING_LIBRARIES:${GLBINDING_LIBRARIES}")
-    message("GLBINDING_DEBUG_LIBRARIES:${GLBINDING_DEBUG_LIBRARIES}")
+    #message("GLBINDING_LIBRARIES:${GLBINDING_LIBRARIES}")
+    #message("GLBINDING_DEBUG_LIBRARIES:${GLBINDING_DEBUG_LIBRARIES}")
     target_link_libraries(${PROJECT_NAME} PRIVATE 
         $<$<CONFIG:Release>:${GLBINDING_LIBRARIES}>
         $<$<CONFIG:Debug>:${GLBINDING_DEBUG_LIBRARIES}>)
