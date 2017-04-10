@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <gpc/gl/wrappers.hpp>
 
 
 // DECLARATIONS --------------------------------------------

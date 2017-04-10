@@ -1,8 +1,9 @@
 #pragma once
 
+#include <array>
 #include <gpc/gl/wrappers.hpp>
-
 #include "utils.hpp" // TODO: replace with future type definition header
+
 
 namespace gpc {
 
