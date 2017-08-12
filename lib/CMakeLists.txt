@@ -66,6 +66,9 @@ target_link_libraries(${PROJECT_NAME} PUBLIC libGPCGLWrappers)
 
 # The GLbinding dependency is private - we only need the GL types
 # GLBinding (OpenGL bindings)
+if (1)
+    #target_link_libraries(${PROJECT_NAME} PRIVATE CONAN_PKG::glbinding)
+else()
 if (TARGET glbinding)
     target_link_libraries(${PROJECT_NAME} PRIVATE glbinding)
 else()
@@ -77,6 +80,7 @@ else()
         $<$<CONFIG:Release>:${GLBINDING_LIBRARIES}>
         $<$<CONFIG:Debug>:${GLBINDING_DEBUG_LIBRARIES}>)
     target_compile_definitions(${PROJECT_NAME} PRIVATE GLBINDING_STATIC)
+endif()
 endif()
 
 if (0)

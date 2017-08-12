@@ -1,0 +1,4 @@
+[requires]
+glbinding/2.1.2@highstreeto/testing
+#glbinding/2.1.1@lasote/vcpkg
+#glbinding/latest@signal9/stable
