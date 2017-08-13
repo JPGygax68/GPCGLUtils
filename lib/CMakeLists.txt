@@ -44,8 +44,10 @@ target_include_directories(${PROJECT_NAME} BEFORE
 
 # "Embed" all shader files (convert to header files)
 
+if (0)
 if (NOT TARGET gpcbin2c)
     find_package(gpcbin2c REQUIRED)
+endif()
 endif()
 
 set(shader_headers)
