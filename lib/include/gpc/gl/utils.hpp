@@ -2,7 +2,13 @@
 
 #include <cassert>
 #include <vector>
-#include <gpc/gl/wrappers.hpp>
+//#include <gpc/gl/wrappers.hpp>
+#ifdef _WIN32
+#define WINDOWS_LEAN_AND_MEAN
+#include <Windows.h>
+#endif
+#include <gl/GL.h>
+
 
 namespace gpc {
 
@@ -18,6 +24,13 @@ namespace gpc {
 
         typedef GLfloat Matrix4[4][4];
         typedef GLfloat Matrix3[3][3];
+
+        struct VertexAttribute {
+            GLenum type;
+            GLint  count;
+            GLint index;
+            // TODO: "normalized" field ?
+        };
 
     } // ns gl
     

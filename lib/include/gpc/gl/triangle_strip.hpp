@@ -10,13 +10,6 @@ namespace gpc {
     
     namespace gl {
         
-        struct VertexAttribute {
-            GLenum type;
-            GLint  count;
-            GLint index;
-            // TODO: "normalized" field ?
-        };
-
         // TODO: rename, since it can now contain multiple strips ?
 
         template <class VertexData = FloatVec3, const VertexAttribute *AttribList = nullptr, unsigned int AttribCount = 0>

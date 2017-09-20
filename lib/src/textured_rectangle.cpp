@@ -1,7 +1,9 @@
-#include <glbinding/gl/gl.h>
-using namespace gl;
+//#include <glbinding/gl/gl.h>
+//using namespace gl;
 
-#include <gpc/gl/textured_rectangle.hpp>
+//#include <gpc/gl/textured_rectangle.hpp>
+#include <gpc/gl/utils.hpp>
+
 
 namespace gpc {
     
